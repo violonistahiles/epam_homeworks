@@ -3,7 +3,7 @@ from homework1.task05 import find_maximal_subarray_sum
 
 def test_default_case():
     """Testing program workflow with default input"""
-    nums_test = [1, 3, -1, 100, -3, 5, 3, 6, 7]
+    nums_test = [1, 3, -1, -3, 5, 3, 6, 7]
     k = 3
 
     result = find_maximal_subarray_sum(nums_test, k)
