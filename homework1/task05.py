@@ -13,4 +13,31 @@ from typing import List
 
 
 def find_maximal_subarray_sum(nums: List[int], k: int) -> int:
-    ...
+
+    nums_len = len(nums)
+    if k > nums_len:
+        k = nums_len
+    elif k == 1:
+        return max(nums)
+    elif k < 0:
+        return None
+
+    if nums_len == 0:
+        return None
+    elif nums_len == 1:
+        return nums[0]
+
+    max_sum_index_start = 0
+    max_sum_index_end = 1
+    max_sum = sum(nums[max_sum_index_start:max_sum_index_end])
+    for i in range(1, k+1):
+        for j in range(nums_len-i+1):
+            current_sum = sum(nums[j:j+i])
+            if current_sum > max_sum:
+                max_sum = current_sum
+                max_sum_index_start = j
+                max_sum_index_end = j + i
+
+    result = sum(nums[max_sum_index_start:max_sum_index_end])
+
+    return result

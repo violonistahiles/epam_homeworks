@@ -1,4 +1,5 @@
 from unittest import mock
+
 from homework1.task03 import find_maximum_and_minimum
 
 
@@ -12,7 +13,7 @@ def test_standard_case():
     correct_value = (1, 4)
     mock_open = mock.mock_open(read_data=some_string)
 
-    with mock.patch('homework1.task03.open', mock_open) as m:
+    with mock.patch('homework1.task03.open', mock_open):
         test_result = find_maximum_and_minimum(dummy_path)
 
     assert test_result == correct_value
@@ -28,7 +29,7 @@ def test_all_integers_are_equal_case():
     correct_value = (1, 1)
     mock_open = mock.mock_open(read_data=some_string)
 
-    with mock.patch('homework1.task03.open', mock_open) as m:
+    with mock.patch('homework1.task03.open', mock_open):
         test_result = find_maximum_and_minimum(dummy_path)
 
     assert test_result == correct_value
@@ -44,7 +45,7 @@ def test_one_integer_case():
     correct_value = (5, 5)
     mock_open = mock.mock_open(read_data=some_string)
 
-    with mock.patch('homework1.task03.open', mock_open) as m:
+    with mock.patch('homework1.task03.open', mock_open):
         test_result = find_maximum_and_minimum(dummy_path)
 
     assert test_result == correct_value
