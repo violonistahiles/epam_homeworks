@@ -8,7 +8,7 @@ def test_default_case():
 
     result = find_maximal_subarray_sum(nums_test, k)
 
-    assert result is 16
+    assert result == 16
 
 
 def test_nums_contain_zero_elements_case():
@@ -28,7 +28,7 @@ def test_nums_contain_one_element_case():
 
     result = find_maximal_subarray_sum(nums_test, k)
 
-    assert result is 5
+    assert result == 5
 
 
 def test_k_value_greater_then_nums_length_case():
@@ -38,7 +38,7 @@ def test_k_value_greater_then_nums_length_case():
 
     result = find_maximal_subarray_sum(nums_test, k)
 
-    assert result is 8
+    assert result == 8
 
 
 def test_k_value_is_one_case():
@@ -48,7 +48,7 @@ def test_k_value_is_one_case():
 
     result = find_maximal_subarray_sum(nums_test, k)
 
-    assert result is 34
+    assert result == 34
 
 
 def test_k_value_less_then_zero_case():
