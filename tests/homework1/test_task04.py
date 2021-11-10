@@ -15,9 +15,10 @@ def test_program_return_right_value():
 
 
 def test_program_with_multiple_identical_combinations_in_first_subset():
-    """Testing program works correctly in case of multiple
-     identical combinations of equal value in first subset
-     """
+    """
+    Testing program works correctly in case of multiple
+    identical combinations of equal value in first subset
+    """
     a = [5, 2, 6]
     b = [5, 8, 6]
     c = [25, 9, 10]
@@ -30,9 +31,10 @@ def test_program_with_multiple_identical_combinations_in_first_subset():
 
 
 def test_program_with_multiple_identical_combinations_in_second_subset():
-    """Testing program works correctly in case of multiple
-     identical combinations of equal value in second subset
-     """
+    """
+    Testing program works correctly in case of multiple
+    identical combinations of equal value in second subset
+    """
     a = [5, 3, 6]
     b = [5, 6, 8]
     c = [25, -6, 9]
@@ -45,9 +47,10 @@ def test_program_with_multiple_identical_combinations_in_second_subset():
 
 
 def test_program_with_multiple_identical_combinations_in_both_subsets():
-    """Testing program works correctly in case of multiple
-     identical combinations of equal value in both subsets
-     """
+    """
+    Testing program works correctly in case of multiple
+    identical combinations of equal value in both subsets
+    """
     a = [5, 2, 6]
     b = [5, 8, 6]
     c = [25, -6, 9]
@@ -60,9 +63,10 @@ def test_program_with_multiple_identical_combinations_in_both_subsets():
 
 
 def test_program_with_all_variants_of_sum():
-    """Testing program works correctly in case of multiple
-     identical combinations of equal value in both subsets
-     """
+    """
+    Testing program works correctly in case of multiple
+    identical combinations of equal value in both subsets
+    """
     a = [5, 2, 100]
     b = [5, 8, -100]
     c = [25, -6, 100]
@@ -75,9 +79,7 @@ def test_program_with_all_variants_of_sum():
 
 
 def test_zero_tuples_number_case():
-    """Testing program returns zero when
-    there are no subsets equal to zero
-    """
+    """Testing program returns zero when there are no equal subsets"""
     a = [5, 7]
     b = [6, 6]
     c = [25, 56]

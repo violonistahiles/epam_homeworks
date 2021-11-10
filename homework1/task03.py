@@ -33,8 +33,3 @@ def find_maximum_and_minimum(file_name: str) -> Tuple[int, int]:
                 max_value = number
 
     return min_value, max_value
-
-
-test_path = 'C://Users/kurushin/Desktop/NN/python_practice/epam/hm1_task3.txt'
-result = find_maximum_and_minimum(test_path)
-print(result)
