@@ -152,5 +152,4 @@ def get_most_common_non_ascii_when_non_ascii_not_exist():
         test_result = get_most_common_non_ascii_char(dummy_path)
     print(test_result)
 
-    assert test_result is False
-
+    assert not test_result

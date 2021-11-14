@@ -18,10 +18,13 @@ Output: 2, 1
 
 """
 from collections import Counter
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 
-def major_and_minor_elem(inp: List) -> Tuple[int, int]:
+def major_and_minor_elem(inp: List) -> Union[None, Tuple[int, int]]:
+    """Find major and minor element from array"""
+    if len(inp) <= 2:
+        return None
 
     list_counter = Counter(inp)
     counted_elements = list_counter.most_common()

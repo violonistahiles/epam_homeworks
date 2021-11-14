@@ -18,4 +18,16 @@ from typing import List, Any
 
 
 def combinations(*args: List[Any]) -> List[List]:
-    ...
+
+    if len(args) == 1:
+        return [*args]
+
+    combinations_list = []
+    result = [[]]
+    for pool in args:
+        result = [x+[y] for x in result for y in pool]
+    for prod in result:
+        combinations_list.append(prod)
+
+    return combinations_list
+
