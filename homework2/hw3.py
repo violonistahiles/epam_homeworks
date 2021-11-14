@@ -18,7 +18,9 @@ from typing import List, Any
 
 
 def combinations(*args: List[Any]) -> List[List]:
-
+    """
+    Return all possible combinations of lists ordered by its elements entry
+    """
     if len(args) == 1:
         return [*args]
 
@@ -30,4 +32,3 @@ def combinations(*args: List[Any]) -> List[List]:
         combinations_list.append(prod)
 
     return combinations_list
-
