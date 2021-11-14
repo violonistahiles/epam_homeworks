@@ -22,11 +22,16 @@ from typing import List, Tuple, Union
 
 
 def major_and_minor_elem(inp: List) -> Union[None, Tuple[int, int]]:
-    """Find major and minor element from array"""
+    """
+    Find major (appears more than n // 2 times) and minor element
+    from array with size n
+    """
     if len(inp) <= 2:
         return None
 
     list_counter = Counter(inp)
     counted_elements = list_counter.most_common()
+    major_element = counted_elements[0][0]
+    minor_element = counted_elements[-1][0]
 
-    return counted_elements[0][0], counted_elements[-1][0]
+    return major_element, minor_element

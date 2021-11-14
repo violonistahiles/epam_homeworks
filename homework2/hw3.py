@@ -26,9 +26,9 @@ def combinations(*args: List[Any]) -> List[List]:
 
     combinations_list = []
     result = [[]]
-    for pool in args:
-        result = [x+[y] for x in result for y in pool]
-    for prod in result:
-        combinations_list.append(prod)
+    for list_sample in args:
+        result = [x+[y] for x in result for y in list_sample]
+    for combination in result:
+        combinations_list.append(combination)
 
     return combinations_list
