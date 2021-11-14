@@ -28,10 +28,10 @@ class StepError(Exception):
     def __init__(self, start, stop, step, error_ind=2):
         if error_ind == 0:
             print(f'Start index of "{start}" should be greater then '
-                  f'stop "{stop}" position index for step "{step}"')
+                  f'stop "{stop}" index for step "{step}"')
         elif error_ind == 1:
             print(f'Start index of "{start}" should be lower then '
-                  f'stop "{stop}" position index for step "{step}"')
+                  f'stop "{stop}" index for step "{step}"')
         else:
             print(f'Step "{step}" of type {type(step)} should be int')
 
@@ -81,12 +81,3 @@ def custom_range(input_sequence: Iterable, *args: Union[str, int]) -> List:
         start += step
         if start < 0:
             break
-
-
-example_1 = {3: 1, 5: 2, 6: 4}
-example_2 = set([4, 5, 6, 1, 7])
-example_3 = [4, 5, 6, 1, 7]
-example_4 = (4, 5, 6, 1, 7)
-
-print(list(example_4))
-print(list(custom_range(example_4, 7, 1, -2)))
