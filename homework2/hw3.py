@@ -19,7 +19,8 @@ from typing import List, Any
 
 def combinations(*args: List[Any]) -> List[List]:
     """
-    Return all possible combinations of lists ordered by its elements entry
+    Return all possible lists of K items where the first element
+    is from the first list, the second is from the second and so one
     """
     if len(args) == 1:
         return [*args]

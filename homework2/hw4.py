@@ -23,7 +23,7 @@ from typing import Callable
 
 
 def cache(func: Callable) -> Callable:
-    """Cache input arguments and result of func"""
+    """Cache func input arguments and result"""
     cache_dict = OrderedDict()
     cache_size = 100
 

@@ -1,6 +1,10 @@
 from unittest import mock
 
-from homework2.hw1 import *
+from homework2.hw1 import get_longest_diverse_words
+from homework2.hw1 import get_rarest_char
+from homework2.hw1 import count_punctuation_chars
+from homework2.hw1 import count_non_ascii_chars
+from homework2.hw1 import get_most_common_non_ascii_char
 
 
 def test_longest_diverse_words_when_words_less_then_ten():
@@ -122,7 +126,7 @@ def test_count_non_ascii_chars_when_non_ascii_not_exist():
     assert test_result == correct_result
 
 
-def get_most_common_non_ascii_char():
+def get_most_common_non_ascii_char_case():
     """Testing that algorithm works fine on standard data"""
     dummy_path = 'some_path'
     text_line_1 = 'f\u00e4mdo, g\u00f6is! pos. a\u00f6- fposd\n'
