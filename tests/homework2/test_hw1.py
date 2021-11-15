@@ -1,10 +1,8 @@
 from unittest import mock
 
-from homework2.hw1 import get_longest_diverse_words
-from homework2.hw1 import get_rarest_char
-from homework2.hw1 import count_punctuation_chars
-from homework2.hw1 import count_non_ascii_chars
-from homework2.hw1 import get_most_common_non_ascii_char
+from homework2.hw1 import (count_non_ascii_chars, count_punctuation_chars,
+                           get_longest_diverse_words,
+                           get_most_common_non_ascii_char, get_rarest_char)
 
 
 def test_longest_diverse_words_when_words_less_then_ten():

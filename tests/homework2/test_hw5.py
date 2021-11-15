@@ -1,7 +1,8 @@
 import string
+
 import pytest
 
-from homework2.hw5 import custom_range, NotAllowedError, StepError
+from homework2.hw5 import NotAllowedError, StepError, custom_range
 
 
 def test_input_dict_with_args_case():
