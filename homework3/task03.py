@@ -1,15 +1,18 @@
 # I decided to write a code that generates data filtering object
 # from a list of keyword parameters:
+from typing import Any, Callable, Dict, Hashable, Iterable, List
+
 
 class Filter:
     """
         Helper filter class. Accepts a list of single-argument
         functions that return True if object in list conforms to some criteria
     """
-    def __init__(self, functions):
+    def __init__(self, functions: List[Callable]) -> None:
         self.functions = functions
+        print(len(functions))
 
-    def apply(self, data):
+    def apply(self, data: Iterable) -> List[Any]:
         return [
             item for item in data
             if all(i(item) for i in self.functions)
@@ -22,32 +25,45 @@ class Filter:
 # positive_even.apply(range(100)) should return only even numbers from 0 to 99
 
 
-def make_filter(**keywords):
+def make_filter(**keywords: Any) -> Filter:
     """
         Generate filter object for specified keywords
     """
     filter_funcs = []
+
     for key, value in keywords.items():
-        def keyword_filter_func(value):
-            return value[key] == value
-        filter_funcs.append(keyword_filter_func)
+
+        def wrapper(key: Hashable, value: Any) -> Callable:
+            def keyword_filter_func(input_dict: Dict) -> bool:
+                """
+                Function return True if key value pair from enclosed scope
+                while function was defined are presented in input_dict
+                """
+                if key in input_dict:
+                    return input_dict[key] == value
+                else:
+                    return False
+            return keyword_filter_func
+
+        filter_funcs.append(wrapper(key, value))
+
     return Filter(filter_funcs)
 
 
-sample_data = [
-     {
-         "name": "Bill",
-         "last_name": "Gilbert",
-         "occupation": "was here",
-         "type": "person",
-     },
-     {
-         "is_dead": True,
-         "kind": "parrot",
-         "type": "bird",
-         "name": "polly"
-     }
-]
+# sample_data = [
+#      {
+#          "name": "Bill",
+#          "last_name": "Gilbert",
+#          "occupation": "was here",
+#          "type": "person",
+#      },
+#      {
+#          "is_dead": True,
+#          "kind": "parrot",
+#          "type": "bird",
+#          "name": "polly"
+#      }
+# ]
 
 # make_filter(name='polly', type='bird').apply(sample_data)
 # should return only second entry from the list

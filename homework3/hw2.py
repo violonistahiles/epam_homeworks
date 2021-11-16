@@ -5,6 +5,7 @@ Use functional capabilities of multiprocessing module.
 You are not allowed to modify slow_calculate function.
 """
 import hashlib
+import os
 import random
 import struct
 import time
@@ -18,26 +19,34 @@ def slow_calculate(value: int) -> int:
     return sum(struct.unpack('<' + 'B' * len(data), data))
 
 
-def estimate_time(value: int) -> int:
-    """Calculate sum of slow function results with time_limit"""
-    time_limit = 60
+def parallelize_calculations(value: int) -> int:
+    """
+    Parallelize calculation of sum of slow function results
+    to meet the time limit
+    """
+    time_limit = 60  # Set time limit
+    # Calculate average time of one function call
     start_time = time.time()
     attempts = 3
     for attempt in range(attempts):
         _ = slow_calculate(attempt)
     execution_time = (time.time() - start_time) / attempts
+    # Estimate approximate workers number
     approx_time = value * execution_time
     workers_need = max(1, int(approx_time // (time_limit/2)))
 
-    i = 0
-    while 2**i < workers_need:
+    cpu_number = os.cpu_count()
+    # Take first multiplication coefficient for cpu_number that
+    # is greater or equal then workers_need
+    i = 1
+    while cpu_number*i < workers_need:
         i += 1
 
-    with Pool(2**i) as p:
+    with Pool(cpu_number*i) as p:
         result = p.map(slow_calculate, list(range(value)))
 
     return sum(result)
 
 
 if __name__ == '__main__':
-    _ = estimate_time(501)
+    _ = parallelize_calculations(501)
