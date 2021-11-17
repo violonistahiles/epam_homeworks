@@ -1,5 +1,6 @@
 """
-Write a function that takes a number N as an input and returns N FizzBuzz numbers*
+Write a function that takes a number N as an input
+and returns N FizzBuzz numbers*
 Write a doctest for that function.
 
 Definition of done:
@@ -17,7 +18,8 @@ You will learn:
 assert fizzbuzz(5) == ["1", "2", "fizz", "4", "buzz"]
 
 * https://en.wikipedia.org/wiki/Fizz_buzz
-** Энциклопедия профессора Фортрана page 14, 15, "Робот Фортран, чисть картошку!"
+** Энциклопедия профессора Фортрана page 14, 15, "Робот Фортран,
+                                                  чисть картошку!"
 """
 from typing import List
 

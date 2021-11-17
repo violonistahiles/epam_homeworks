@@ -35,7 +35,7 @@ def count_dots_on_i(url: str) -> int:
     """
     try:
         url_response = urlopen(url).read()
-    except:
+    except Exception:
         raise ValueError(f'Unreachable {url}')
 
     html_string = url_response.decode('utf-8')

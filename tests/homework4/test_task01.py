@@ -5,7 +5,6 @@ import pytest
 
 from homework4.task_1_read_file import read_magic_number
 
-
 # @pytest.fixture
 # def wrong_text():
 #     text = 'fsdsfsd\n'
@@ -28,7 +27,7 @@ def test_path_not_exists_case():
         read_magic_number(dummy_path)
 
 
-def test_can_not_convert_to_float():
+def test_first_line_not_a_number_case():
     """
     Testing when the first line of text file
     consists of not a number
@@ -42,7 +41,7 @@ def test_can_not_convert_to_float():
             read_magic_number(existed_path)
 
 
-def test_number_between_one_and_three():
+def test_number_in_interval():
     """Testing when the first line consist of a number from interval [1, 3)"""
     test_text = '2\n'
     existed_path = os.getcwd()
