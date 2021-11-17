@@ -1,7 +1,11 @@
+"""
+Due to time consuming execution of slow_calculate function, performance tests
+are commented
+"""
 # import time
 #
 # from homework3.hw2 import parallelize_calculations
-
+#
 #
 # def test_calculations_time():
 #     """Assert that running time is less then 60 secs"""

@@ -10,7 +10,7 @@ Examples:
 - 153 is : 153 = 1^3 + 5^3 + 3^3 = 1 + 125 + 27 = 153
 
 
-Write a function that detects if a number is Armstrong number in functionaly
+Write a function that detects if a number is Armstrong number in functional
 style:
  - use map or other utilities from functools library,
  - use anonymous functions (or use function as argument)
@@ -20,9 +20,33 @@ style:
 """
 
 
+def get_digits_number(number: int) -> int:
+    """Recursion function to get number of digits"""
+    rest_digits = number // 10
+    if not rest_digits:
+        return 1
+    else:
+        return 1 + get_digits_number(rest_digits)
+
+
+def get_sum(number: int, power: int) -> int:
+    """Recursion function to power each digit in number"""
+    rest_digits = number // 10
+    if not rest_digits:
+        return pow(number % 10, power)
+    else:
+        return pow(number % 10, power) + get_sum(rest_digits, power)
+
+
+def get_digits_power_sum(number: int) -> int:
+    """Function to get Armstrong sum"""
+    digits_number = get_digits_number(number)
+    return get_sum(number, digits_number)
+
+
 def is_armstrong(number: int) -> bool:
-    ...
-
-
-assert is_armstrong(153) is True, 'Is Armstrong number'
-assert is_armstrong(10) is False, 'Is not Armstrong number'
+    """Check if number is Armstrong number"""
+    if number < 0 and not isinstance(number, int):
+        return False
+    digits_sum = get_digits_power_sum(number)
+    return number == digits_sum
