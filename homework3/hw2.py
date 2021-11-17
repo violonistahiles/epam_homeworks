@@ -46,7 +46,3 @@ def parallelize_calculations(value: int) -> int:
         result = p.map(slow_calculate, list(range(value)))
 
     return sum(result)
-
-
-if __name__ == '__main__':
-    _ = parallelize_calculations(501)
