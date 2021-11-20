@@ -21,7 +21,24 @@ You will learn:
  - how to write to stderr
  - how to test output to the stderr and stdout
 """
+import sys
 
 
-def my_precious_logger(text: str):
-    pass
+def my_precious_logger(text: str) -> None:
+    """
+    Write text witch starts with "error" to stderr
+    and to stdout otherwise
+    """
+
+    if not isinstance(text, str):
+        raise ValueError
+
+    stdout_cache = sys.stdout
+    stderr_cache = sys.stderr
+
+    if text.startswith('error'):
+        stderr_cache.write(text + '\n')
+    else:
+        stdout_cache.write(text + '\n')
+
+    return
