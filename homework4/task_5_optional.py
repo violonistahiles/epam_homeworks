@@ -19,8 +19,23 @@ Definition of done:
 * https://en.wikipedia.org/wiki/Fizz_buzz
 ** https://www.youtube.com/watch?v=NSzsYWckGd4
 """
-from typing import Generator, List
 
 
-def fizzbuzz(n: int) -> Generator[str]:
-    pass
+def fizzbuzz(n: int) -> str:
+    """
+    Generator that yields n FizzBuzz numbers
+    """
+    if not isinstance(n, int) or n < 0:
+        raise ValueError
+
+    start = 1
+    end = n + 1
+    for i in range(start, end):
+        fizz = i % 3 == 0
+        buzz = i % 5 == 0
+        yield 'fizz'*fizz + 'buzz'*buzz + (not buzz and not fizz)*str(i)
+
+
+if __name__ == '__main__':
+    number = 15
+    print(list(fizzbuzz(number)))

@@ -29,34 +29,30 @@ def fizzbuzz(n: int) -> List[str]:
     >>> fizzbuzz(5)
     ['1', '2', 'fizz', '4', 'buzz']
     """
-
-    if not isinstance(n, int):
+    if not isinstance(n, int) or n < 0:
         raise ValueError
 
     def fizz_cond(x: int) -> Union[int, str]:
         if x % 3 == 0:
             return 'fizz'
-        return x
+        return ''
 
     def buzz_cond(x: int) -> Union[int, str]:
         if x % 5 == 0:
             return 'buzz'
-        return x
+        return ''
 
     fizzbuzz_numbers = []
 
     for i in range(1, n+1):
-        fizz = fizz_cond(i)
-        buzz = buzz_cond(i)
+        result = ''
+        result += fizz_cond(i)
+        result += buzz_cond(i)
 
-        if isinstance(fizz, str) and isinstance(buzz, str):
-            fizzbuzz_numbers.append(fizz+buzz)
-        elif isinstance(fizz, str):
-            fizzbuzz_numbers.append(fizz)
-        elif isinstance(buzz, str):
-            fizzbuzz_numbers.append(buzz)
-        else:
-            fizzbuzz_numbers.append(str(i))
+        if not result:
+            result = str(i)
+
+        fizzbuzz_numbers.append(result)
 
     return fizzbuzz_numbers
 
