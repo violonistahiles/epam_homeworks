@@ -17,7 +17,7 @@ def test_not_a_fib_sequence_case():
 def test_single_value_from_fib_sequence_case():
     """Testing that single number from actual Fibonacci sequence give True"""
     data_to_process = [2584]
-    assert check_fibonacci(data_to_process)
+    assert not check_fibonacci(data_to_process)
 
 
 def test_single_value_not_from_fib_sequence_case():

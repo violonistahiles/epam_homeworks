@@ -1,3 +1,5 @@
+import pytest
+
 from homework1.task05 import find_maximal_subarray_sum
 
 
@@ -11,24 +13,23 @@ def test_default_case():
     assert result == 16
 
 
-def test_nums_contain_zero_elements_case():
-    """Testing program with no elements in nums list"""
-    nums_test = []
-    k = 3
-
-    result = find_maximal_subarray_sum(nums_test, k)
-
-    assert result is None
-
-
 def test_nums_contain_one_element_case():
     """Testing program with one element in nums list"""
     nums_test = [5]
-    k = 3
+    k = 1
 
     result = find_maximal_subarray_sum(nums_test, k)
 
     assert result == 5
+
+
+def test_nums_is_empty_case():
+    """Testing when there is no numbers in nums"""
+    nums_test = []
+    k = 1
+
+    with pytest.raises(ValueError):
+        find_maximal_subarray_sum(nums_test, k)
 
 
 def test_k_value_greater_then_nums_length_case():
@@ -36,9 +37,8 @@ def test_k_value_greater_then_nums_length_case():
     nums_test = [5, 3]
     k = 3
 
-    result = find_maximal_subarray_sum(nums_test, k)
-
-    assert result == 8
+    with pytest.raises(ValueError):
+        find_maximal_subarray_sum(nums_test, k)
 
 
 def test_k_value_is_one_case():
@@ -56,6 +56,5 @@ def test_k_value_less_then_zero_case():
     nums_test = [5, 3, 34]
     k = -1
 
-    result = find_maximal_subarray_sum(nums_test, k)
-
-    assert result is None
+    with pytest.raises(ValueError):
+        find_maximal_subarray_sum(nums_test, k)

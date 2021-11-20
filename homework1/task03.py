@@ -2,7 +2,7 @@
 Write down the function, which reads input line-by-line, and find maximum and
 minimum values. Function should return a tuple with the max and min values.
 
-For example for [1, 2, 3, 4, 5], function should return [1, 5]
+For example for [1, 2, 3, 4, 5], function should return [5, 1]
 
 We guarantee, that file exists and contains line-delimited integers.
 
@@ -32,4 +32,4 @@ def find_maximum_and_minimum(file_name: str) -> Tuple[int, int]:
             if number > max_value:
                 max_value = number
 
-    return min_value, max_value
+    return max_value, min_value

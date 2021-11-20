@@ -15,17 +15,10 @@ from typing import List
 def find_maximal_subarray_sum(nums: List[int], k: int) -> int:
 
     nums_len = len(nums)
-    if k > nums_len:
-        k = nums_len
+    if k > nums_len or k <= 0:
+        raise ValueError
     elif k == 1:
         return max(nums)
-    elif k < 0:
-        return None
-
-    if nums_len == 0:
-        return None
-    elif nums_len == 1:
-        return nums[0]
 
     max_sum_index_start = 0
     max_sum_index_end = 1

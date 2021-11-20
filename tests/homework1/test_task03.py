@@ -10,7 +10,7 @@ def test_standard_case():
     """
     some_string = '3\n1\n2\n3\n4'
     dummy_path = 'Z://dummy'
-    correct_value = (1, 4)
+    correct_value = (4, 1)
     mock_open = mock.mock_open(read_data=some_string)
 
     with mock.patch('homework1.task03.open', mock_open):
