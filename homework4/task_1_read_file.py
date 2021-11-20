@@ -50,6 +50,3 @@ def read_magic_number(path: str) -> bool:
         raise ValueError
 
     return 1 <= number < 3
-
-# dir_path = os.path.dirname(os.path.realpath(__file__))
-# print(dir_path)
