@@ -18,35 +18,28 @@ style:
 
 ### Example function signature and call
 """
+from functools import reduce
+from typing import Tuple
 
 
-def get_digits_number(number: int) -> int:
-    """Recursion function to get number of digits"""
-    rest_digits = number // 10
-    if not rest_digits:
-        return 1
-    else:
-        return 1 + get_digits_number(rest_digits)
-
-
-def get_sum(number: int, power: int) -> int:
-    """Recursion function to power each digit in number"""
-    rest_digits = number // 10
-    if not rest_digits:
-        return pow(number % 10, power)
-    else:
-        return pow(number % 10, power) + get_sum(rest_digits, power)
+def number_to_string(number: int) -> Tuple[str, int]:
+    """Convert integer to string and get its length"""
+    str_number = str(number)
+    return str_number, len(str_number)
 
 
 def get_digits_power_sum(number: int) -> int:
     """Function to get Armstrong sum"""
-    digits_number = get_digits_number(number)
-    return get_sum(number, digits_number)
+    str_number, digits_number = number_to_string(number)
+    powered_digits = map(lambda x: int(x)**digits_number, str_number)
+    digits_sum = reduce(lambda x, y: x+y, powered_digits)
+    return digits_sum
 
 
 def is_armstrong(number: int) -> bool:
     """Check if number is Armstrong number"""
     if number < 0 and not isinstance(number, int):
         return False
+
     digits_sum = get_digits_power_sum(number)
     return number == digits_sum
