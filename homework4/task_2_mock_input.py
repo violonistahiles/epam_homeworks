@@ -21,8 +21,8 @@ You will learn:
  - do a simple network requests
 
 
->>> count_dots_on_i("https://example.com/")
-59
+# >>> count_dots_on_i("https://example.com/")
+# 59
 
 * https://docs.python.org/3/library/urllib.request.html#urllib.request.urlopen
 """
@@ -43,6 +43,6 @@ def count_dots_on_i(url: str) -> int:
 
 
 if __name__ == '__main__':
-    test_url = 'http://www.python.org'
+    test_url = 'https://example.com/'
     i_count = count_dots_on_i(test_url)
     print(i_count)
