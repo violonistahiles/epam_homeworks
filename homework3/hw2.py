@@ -5,6 +5,7 @@ Use functional capabilities of multiprocessing module.
 You are not allowed to modify slow_calculate function.
 """
 import hashlib
+import math
 import os
 import random
 import struct
@@ -36,13 +37,10 @@ def parallelize_calculations(value: int) -> int:
     workers_need = max(1, int(approx_time // (time_limit/2)))
 
     cpu_number = os.cpu_count()
-    # Take first multiplication coefficient for cpu_number that
+    # Take multiplication coefficient for cpu_number that its product
     # is greater or equal then workers_need
-    i = 1
-    while cpu_number*i < workers_need:
-        i += 1
-
-    with Pool(cpu_number*i) as p:
+    coef = math.ceil(workers_need / cpu_number)
+    with Pool(cpu_number*coef) as p:
         result = p.map(slow_calculate, list(range(value)))
 
     return sum(result)
