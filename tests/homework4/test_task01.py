@@ -17,20 +17,20 @@ def test_first_line_not_a_number_case(tmpdir):
     consists of not a number
     """
     test_text = 'fadhsaoi\n'
-    p = tmpdir.mkdir("sub").join("hello.txt")
-    p.write(test_text)
+    tmp_path = tmpdir.mkdir("sub").join("tmp_text.txt")
+    tmp_path.write(test_text)
 
     with pytest.raises(ValueError):
-        read_magic_number(p)
+        read_magic_number(tmp_path)
 
 
 def test_number_in_interval(tmpdir):
     """Testing when the first line consist of a number from interval [1, 3)"""
     test_text = '2\n'
-    p = tmpdir.mkdir("sub").join("hello.txt")
-    p.write(test_text)
+    tmp_path = tmpdir.mkdir("sub").join("tmp_text.txt")
+    tmp_path.write(test_text)
 
-    assert read_magic_number(p)
+    assert read_magic_number(tmp_path)
 
 
 def test_number_not_in_interval(tmpdir):
@@ -39,7 +39,7 @@ def test_number_not_in_interval(tmpdir):
     not from interval [1, 3)
     """
     test_text = '10\n'
-    p = tmpdir.mkdir("sub").join("hello.txt")
-    p.write(test_text)
+    tmp_path = tmpdir.mkdir("sub").join("tmp_text.txt")
+    tmp_path.write(test_text)
 
-    assert not read_magic_number(p)
+    assert not read_magic_number(tmp_path)
