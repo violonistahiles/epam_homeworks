@@ -20,7 +20,7 @@ assert fizzbuzz(5) == ["1", "2", "fizz", "4", "buzz"]
 ** Энциклопедия профессора Фортрана page 14, 15, "Робот Фортран,
                                                   чисть картошку!"
 """
-from typing import List, Union
+from typing import List
 
 
 def fizzbuzz(n: int) -> List[str]:
@@ -32,12 +32,12 @@ def fizzbuzz(n: int) -> List[str]:
     if not isinstance(n, int) or n < 0:
         raise ValueError
 
-    def fizz_cond(x: int) -> Union[int, str]:
+    def fizz_cond(x: int) -> str:
         if x % 3 == 0:
             return 'fizz'
         return ''
 
-    def buzz_cond(x: int) -> Union[int, str]:
+    def buzz_cond(x: int) -> str:
         if x % 5 == 0:
             return 'buzz'
         return ''
