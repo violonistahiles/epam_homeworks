@@ -28,6 +28,16 @@ def fizzbuzz(n: int) -> List[str]:
     Return n numbers where FizzBuzz numbers switched for "fizz" and "buzz"
     >>> fizzbuzz(5)
     ['1', '2', 'fizz', '4', 'buzz']
+    >>> test_result = fizzbuzz(15)
+    >>> test_result.count('fizzbuzz')
+    1
+    >>> test_result.count('fizz')
+    4
+    >>> test_result.count('buzz')
+    2
+    >>> fizzbuzz(-3)
+    Traceback (most recent call last):
+    ValueError
     """
     if not isinstance(n, int) or n < 0:
         raise ValueError
