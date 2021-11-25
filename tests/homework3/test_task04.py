@@ -1,16 +1,14 @@
-from homework3.task04 import get_digits_power_sum, is_armstrong
+from homework3.task04 import is_armstrong
 
 
-def test_get_digits_power_sum():
-    """Testing function works ok"""
-    test_number = 42
-    assert get_digits_power_sum(test_number) == 20
+def test_is_armstrong_when_number_is_not_int():
+    """Testing that wrong input will return False"""
+    assert not is_armstrong(5.2)
 
 
-def test_get_digits_power_sum_with_zero():
-    """Testing function works ok with zero as argument"""
-    test_number = 0
-    assert get_digits_power_sum(test_number) == 0
+def test_is_armstrong_when_number_is_negative():
+    """Testing that wrong input will return False"""
+    assert not is_armstrong(-52)
 
 
 def test_is_armstrong_when_number_is_armstrong():

@@ -18,28 +18,12 @@ style:
 
 ### Example function signature and call
 """
-from functools import reduce
-from typing import Tuple
-
-
-def number_to_string(number: int) -> Tuple[str, int]:
-    """Convert integer to string and get its length"""
-    str_number = str(number)
-    return str_number, len(str_number)
-
-
-def get_digits_power_sum(number: int) -> int:
-    """Function to get Armstrong sum"""
-    str_number, digits_number = number_to_string(number)
-    powered_digits = map(lambda x: int(x)**digits_number, str_number)
-    digits_sum = reduce(lambda x, y: x+y, powered_digits)
-    return digits_sum
 
 
 def is_armstrong(number: int) -> bool:
     """Check if number is Armstrong number"""
-    if number < 0 and not isinstance(number, int):
+    if not isinstance(number, int) or number < 0:
         return False
 
-    digits_sum = get_digits_power_sum(number)
+    digits_sum = sum([pow(int(x), len(str(number))) for x in str(number)])
     return number == digits_sum
