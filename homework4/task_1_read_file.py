@@ -32,7 +32,9 @@ You will learn:
 import os
 
 
-def read_magic_number(path: str) -> bool:
+def read_magic_number(
+        path: str, encoding: str = 'utf-8', errors: str = 'ignore'
+) -> bool:
     """
     Return True if first line consists only of a number
     and number in an interval [1, 3)
@@ -41,12 +43,9 @@ def read_magic_number(path: str) -> bool:
     if not os.path.exists(path):
         raise ValueError
 
-    with open(path, 'rb') as file_example:
-        first_line = file_example.readline().decode('utf-8').strip()
+    with open(path, 'r', encoding=encoding, errors=errors) as file_example:
+        first_line = file_example.readline().strip()
 
-    try:
-        number = float(first_line)
-    except Exception:
-        raise ValueError
+    number = float(first_line)
 
     return 1 <= number < 3

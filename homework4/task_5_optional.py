@@ -22,9 +22,7 @@ Definition of done:
 
 
 def fizzbuzz(n: int) -> str:
-    """
-    Generator that yields n FizzBuzz numbers
-    """
+    """Generator that yields n FizzBuzz numbers"""
     if not isinstance(n, int) or n < 0:
         raise ValueError
 

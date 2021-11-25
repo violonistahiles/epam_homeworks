@@ -30,9 +30,7 @@ from urllib.request import urlopen
 
 
 def count_dots_on_i(url: str) -> int:
-    """
-    Return number of "i" characters in html code of url
-    """
+    """Return number of "i" characters in html code of url"""
     try:
         url_response = urlopen(url).read()
     except Exception:

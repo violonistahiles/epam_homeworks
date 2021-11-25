@@ -16,7 +16,7 @@ def test_first_line_not_a_number_case(tmpdir):
     Testing when the first line of text file
     consists of not a number
     """
-    test_text = 'fadhsaoi\n'
+    test_text = 'not_a_number\n'
     tmp_path = tmpdir.mkdir("sub").join("tmp_text.txt")
     tmp_path.write(test_text)
 
