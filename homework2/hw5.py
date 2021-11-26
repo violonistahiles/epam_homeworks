@@ -16,41 +16,44 @@ assert = custom_range(some_string, 'g', 'p') == ['g', 'h', 'i', 'j', 'k',
 assert = custom_range(some_string, 'p', 'g', -2) == ['p', 'n', 'l', 'j', 'h']
 
 """
-from typing import Iterable, List, Union
+from typing import Iterable, Iterator, Sequence, Tuple, Union
 
 
 class NotAllowedError(Exception):
-    def __init__(self):
-        print('For Set and Dict not allowed to select start, stop and step')
+    """For Set and Dict not allowed to select start, stop and step"""
 
 
 class StepError(Exception):
+    """Raise Error if something wrong with start, stop or step"""
+
     def __init__(self, start, stop, step, error_ind=2):
         if error_ind == 0:
-            print(f'Start index of "{start}" should be greater then '
-                  f'stop "{stop}" index for step "{step}"')
+            self.massage = (f'Start index of "{start}" must be'
+                            f' greater then stop "{stop}"'
+                            f' index for step "{step}"')
         elif error_ind == 1:
-            print(f'Start index of "{start}" should be lower then '
-                  f'stop "{stop}" index for step "{step}"')
+            self.massage = (f'Start index of "{start}" must be'
+                            f' lower then stop "{stop}"'
+                            f' index for step "{step}"')
         else:
-            print(f'Step "{step}" of type {type(step)} should be int')
+            self.massage = (f'Step "{step}" of type'
+                            f' {type(step)} must be int')
+
+    def __str__(self):
+        return self.massage
 
 
-def custom_range(input_sequence: Iterable, *args: Union[str, int]) -> List:
+def set_parameters(input_sequence: Sequence,
+                   *args: Tuple[Union[str, int], ...]) -> Tuple[int, int, int]:
     """
-    Step through the elements of the iterable
-    Arguments:
-        :args: - any of follow sequences
+        Parse parameters for iteration from args
+        Arguments:
+        :args: - any of following sequences
         [stop], [start, stop], [start, stop, step]
     """
     # Set base parameters
     step = 1
     input_len = len(input_sequence)
-    # Check if input sequence is unordered fata type
-    if isinstance(input_sequence, dict) or isinstance(input_sequence, set):
-        input_sequence = list(input_sequence)
-        if len(args) > 0:
-            raise NotAllowedError()
 
     # Set parameters for iteration
     if len(args) == 0:
@@ -74,6 +77,25 @@ def custom_range(input_sequence: Iterable, *args: Union[str, int]) -> List:
         raise StepError(start, stop, step, 1)
     elif start < stop and step < 0:
         raise StepError(start, stop, step, 0)
+
+    return start, stop, step
+
+
+def custom_range(input_sequence: Iterable, *args: Union[str, int]) -> Iterator:
+    """
+    Step through the elements of the iterable
+    Arguments:
+        :args: - any of following sequences
+        [stop], [start, stop], [start, stop, step]
+    """
+    # Check if input sequence is unordered fata type
+    if isinstance(input_sequence, dict) or isinstance(input_sequence, set):
+        input_sequence = list(input_sequence)
+        if len(args) > 0:
+            raise NotAllowedError()
+
+    # Get parameters for iteration
+    start, stop, step = set_parameters(input_sequence, *args)
 
     # Iterate through elements
     while (start <= stop and step > 0) or (start >= stop and step < 0):
