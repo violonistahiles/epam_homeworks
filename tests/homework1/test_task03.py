@@ -1,6 +1,19 @@
 from unittest import mock
 
-from homework1.task03 import find_maximum_and_minimum
+from homework1.task03 import find_maximum_and_minimum, line_generator
+
+
+def test_line_generator():
+    """Testing line generator work correct"""
+    some_string = '3\n1\n2\n3\n4'
+    dummy_path = 'Z://dummy'
+    correct_value = ['3', '1', '2', '3', '4']
+    mock_open = mock.mock_open(read_data=some_string)
+
+    with mock.patch('homework1.task03.open', mock_open):
+        test_result = list(line_generator(dummy_path))
+
+    assert test_result == correct_value
 
 
 def test_standard_case():
