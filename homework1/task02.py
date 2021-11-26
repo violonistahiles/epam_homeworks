@@ -6,28 +6,40 @@ Given a cell with "it's a fib sequence" from slideshow,
 We guarantee, that the given sequence contain >= 0 integers inside.
 
 """
-from typing import Sequence
+from typing import Iterable, Iterator, Sequence
+
+empty_element = object()
+
+
+def fib_generator(start_item: int) -> Iterator[int]:
+    """Generate fibonacci sequence element"""
+    i, j = 0, 1
+    while True:
+        if i >= start_item:
+            yield i
+        i, j = j, i + j
+
+
+def peek_first(data_sequence: Iterable[int]) -> Iterator[int]:
+    """Generate first element from sequence twice"""
+    first = True
+    for element in data_sequence:
+        if first:
+            first = False
+            yield element
+        yield element
 
 
 def check_fibonacci(data: Sequence[int]) -> bool:
-
-    fib_sequence_limit = 3
-    if len(data) < fib_sequence_limit:
+    """Check if sequence with number of elements larger then 3 is Fibonacci"""
+    if len(data) < 3:
         return False
 
-    fib_1, fib_2 = 0, 1  # Initial Fibonacci sequence
-    data_len = len(data) - 1
-    k = 0
-    while data[k] >= fib_1:
-        is_equal = (data[k] == fib_1)
-
-        if is_equal and k == data_len:
-            return True
-        elif is_equal and k < data_len:
-            k += 1
-        elif k > 0:
+    data = peek_first(data)
+    first_element = next(data, empty_element)
+    if first_element == empty_element:
+        return False
+    for fib_element, data_element in zip(fib_generator(first_element), data):
+        if fib_element != data_element:
             return False
-
-        fib_1, fib_2 = fib_2, fib_1 + fib_2
-    else:
-        return False
+    return True

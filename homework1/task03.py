@@ -16,6 +16,11 @@ with open("some_file.txt") as fi:
 from typing import Tuple
 
 
+class NotIntError(ValueError):
+    """Error if line in text file can't be converted to integer"""
+    ...
+
+
 def line_generator(
         file_name: str, encoding: str = 'utf-8', errors: str = 'ignore'
 ) -> str:
@@ -23,7 +28,10 @@ def line_generator(
     with open(file_name, encoding=encoding, errors=errors) as file_example:
         line = file_example.readline()
         while line:
-            yield line.strip()
+            try:
+                yield int(line.strip())
+            except ValueError:
+                raise NotIntError('Sequence elements should be integers')
             line = file_example.readline()
 
 
@@ -35,9 +43,8 @@ def find_maximum_and_minimum(
         file_name, encoding=encoding, errors=errors
     )
 
-    max_value = min_value = int(next(line_gen))
-    for line in line_gen:
-        number = int(line.strip())
+    max_value = min_value = next(line_gen)
+    for number in line_gen:
 
         if number < min_value:
             min_value = number

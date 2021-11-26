@@ -1,13 +1,27 @@
 from unittest import mock
 
-from homework1.task03 import find_maximum_and_minimum, line_generator
+import pytest
+
+from homework1.task03 import (NotIntError, find_maximum_and_minimum,
+                              line_generator)
+
+
+def test_line_generator_with_not_int_element():
+    """Testing line generator work correct"""
+    some_string = '3\n1\n2\nnot_int\n4'
+    dummy_path = 'Z://dummy'
+    mock_open = mock.mock_open(read_data=some_string)
+
+    with mock.patch('homework1.task03.open', mock_open):
+        with pytest.raises(NotIntError):
+            _ = list(line_generator(dummy_path))
 
 
 def test_line_generator():
     """Testing line generator work correct"""
     some_string = '3\n1\n2\n3\n4'
     dummy_path = 'Z://dummy'
-    correct_value = ['3', '1', '2', '3', '4']
+    correct_value = [3, 1, 2, 3, 4]
     mock_open = mock.mock_open(read_data=some_string)
 
     with mock.patch('homework1.task03.open', mock_open):

@@ -1,4 +1,30 @@
-from homework1.task02 import check_fibonacci
+from homework1.task02 import check_fibonacci, fib_generator, peek_first
+
+
+def test_fib_generator():
+    """Testing Fibonacci generator works ok"""
+    fib_sequence = [5, 8, 13, 21, 34]
+    for gen_element, true_element in zip(fib_generator(5), fib_sequence):
+        assert gen_element == true_element
+
+
+def test_peek_first():
+    """Testing peek_first generator works ok"""
+    fib_sequence = [5, 8, 13, 21, 34]
+    data_generator = peek_first(fib_sequence)
+
+    first = next(data_generator)
+    second = next(data_generator)
+    third = next(data_generator)
+
+    assert first == second
+    assert first != third
+
+
+def test_data_is_empty_case():
+    """Testing that empty data will return False"""
+    data_to_process = []
+    assert not check_fibonacci(data_to_process)
 
 
 def test_fib_sequence_case():
