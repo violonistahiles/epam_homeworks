@@ -32,6 +32,11 @@ You will learn:
 import os
 
 
+class FileNotExists(ValueError):
+    """Raise error if file is not exist"""
+    ...
+
+
 def read_magic_number(
         path: str, encoding: str = 'utf-8', errors: str = 'ignore'
 ) -> bool:
@@ -41,7 +46,7 @@ def read_magic_number(
     """
 
     if not os.path.exists(path):
-        raise ValueError
+        raise FileNotExists('File not exist')
 
     with open(path, 'r', encoding=encoding, errors=errors) as file_example:
         first_line = file_example.readline().strip()
