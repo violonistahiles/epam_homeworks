@@ -26,17 +26,32 @@ You will learn:
 
 * https://docs.python.org/3/library/urllib.request.html#urllib.request.urlopen
 """
+from urllib.error import URLError
 from urllib.request import urlopen
+
+
+class URLReader:
+    """Perform operations with network requests"""
+    @staticmethod
+    def read_url(url: str) -> bytes:
+        try:
+            url_response = urlopen(url).read()
+        except URLError:
+            raise ValueError(f'Unreachable {url}')
+
+        return url_response
+
+    @staticmethod
+    def decode_url(url_response: bytes, encoding: str = 'utf-8') -> str:
+        return url_response.decode(encoding)
 
 
 def count_dots_on_i(url: str) -> int:
     """Return number of "i" characters in html code of url"""
-    try:
-        url_response = urlopen(url).read()
-    except Exception:
-        raise ValueError(f'Unreachable {url}')
+    client = URLReader()
+    url_response = client.read_url(url)
+    html_string = client.decode_url(url_response)
 
-    html_string = url_response.decode('utf-8')
     return html_string.count('i')
 
 
