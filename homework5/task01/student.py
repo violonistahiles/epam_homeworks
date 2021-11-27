@@ -1,10 +1,11 @@
 import sys
 from typing import Union
 
-from homework import Homework
+from homework5.task01.homework import Homework
 
 
 class Student:
+    """Abstract student with first and last name which can check task info"""
     def __init__(self, first_name: str, last_name: str) -> None:
         self.first_name = first_name
         self.last_name = last_name

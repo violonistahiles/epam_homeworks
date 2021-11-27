@@ -35,8 +35,8 @@ PEP8 соблюдать строго.
 """
 import datetime
 
-from student import Student
-from teacher import Teacher
+from homework5.task01.student import Student
+from homework5.task01.teacher import Teacher
 
 if __name__ == '__main__':
     some_time = datetime.time()
