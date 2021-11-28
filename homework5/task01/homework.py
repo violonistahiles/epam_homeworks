@@ -23,7 +23,7 @@ class Homework:
 
     def is_active(self):
         current_time = datetime.datetime.now()
-        if current_time > self.final_day:
+        if current_time >= self.final_day:
             return False
         return True
 

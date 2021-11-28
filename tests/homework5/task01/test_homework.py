@@ -8,10 +8,11 @@ from homework5.task01.homework import Homework, TimeToSolveError
 def test_deadline():
     """Testing deadline property works ok"""
     test_task = Homework('Be a hero', 2)
+    time.sleep(0.01)
 
     deadline = test_task.deadline.days
 
-    assert deadline == 2
+    assert deadline == 1
     assert test_task.text == 'Be a hero'
 
 

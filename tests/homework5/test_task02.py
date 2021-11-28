@@ -15,14 +15,14 @@ def print_result(func: Callable):
 
 
 @print_result
-def test_func() -> int:
+def some_func() -> int:
     """This is test func"""
     return 5
 
 
 def test_save_parameters(capsys):
     """Testing save_parameters decorator works fine"""
-    assert test_func.__doc__ == 'This is test func'
-    assert test_func.__name__ == 'test_func'
-    assert test_func() == 5
+    assert some_func.__doc__ == 'This is test func'
+    assert some_func.__name__ == 'some_func'
+    assert some_func() == 5
     assert capsys.readouterr().out == '5\n'

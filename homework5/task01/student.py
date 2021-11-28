@@ -12,7 +12,7 @@ class Student:
 
     @staticmethod
     def do_homework(homework: Homework) -> Union[Homework, None]:
-        if homework.deadline.days == 0:
+        if not homework.is_active():
             sys.stdout.write('You are late')
             return None
         return homework
