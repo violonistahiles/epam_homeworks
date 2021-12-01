@@ -21,7 +21,7 @@ class Homework:
         delta = self.final_day - current_time
         return delta
 
-    def is_active(self):
+    def is_active(self) -> bool:
         current_time = datetime.datetime.now()
         if current_time >= self.final_day:
             return False
