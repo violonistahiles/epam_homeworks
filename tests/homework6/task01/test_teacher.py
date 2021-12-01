@@ -1,6 +1,6 @@
 import time
 
-from homework5.task01.teacher import Teacher
+from homework6.task01.oop_2 import Teacher
 
 
 def test_teacher_create_homework():

@@ -1,5 +1,4 @@
-from homework5.task01.homework import Homework
-from homework5.task01.student import Student
+from homework6.task01.oop_2 import Homework, Student
 
 
 def test_student_has_time(capsys):

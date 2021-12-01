@@ -1,7 +1,8 @@
 import time
 
 import pytest
-from homework5.task01.homework import Homework, TimeToSolveError
+
+from homework6.task01.oop_2 import Homework, TimeToSolveError
 
 
 def test_deadline():
