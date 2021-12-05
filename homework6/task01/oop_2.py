@@ -50,7 +50,7 @@ class DeadlineError(Exception):
 
 
 class HomeworkTypeError(Exception):
-    """Homework must be instance of class Homework"""
+    """Homework parameter must be instance of class Homework"""
 
 
 class TimeToSolveError(Exception):
@@ -101,6 +101,16 @@ class HomeworkResult:
         self.author = author
         self.solution = solution
         self.created = homework.created
+        self.attributes = ['homework', 'author', 'solution', 'created']
+
+    def __eq__(self, other):
+        for attribute in self.attributes:
+            if self.__dict__[attribute] != other.__dict__[attribute]:
+                return False
+        return True
+
+    def __hash__(self):
+        return hash(tuple((self.__dict__[attr] for attr in self.attributes)))
 
 
 class Student(Person):
@@ -122,10 +132,10 @@ class Teacher(Person):
     def create_homework(text: str, days_to_solve: int) -> Homework:
         return Homework(text, days_to_solve)
 
-    def check_homework(self, solution: HomeworkResult) -> bool:
+    def check_homework(self, result: HomeworkResult) -> bool:
         """Check if number of symbols in solution is greater then 5"""
-        if len(solution.homework.text) > 5:
-            self.homework_done[solution.homework].add(solution)
+        if len(result.solution) > 5:
+            self.homework_done[result.homework].add(result)
             return True
         return False
 

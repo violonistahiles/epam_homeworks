@@ -1,23 +1,31 @@
-from homework6.task01.oop_2 import Homework, Student
+import pytest
+
+from homework6.task01.oop_2 import (DeadlineError, Homework, HomeworkResult,
+                                    Student)
 
 
-def test_student_has_time(capsys):
-    """Testing Student class works ok and up-to-date task return task"""
-    student = Student('Vasiliy', 'Terkin')
-    task = Homework('Be a hero', 1)
+def test_student_has_time():
+    """
+    Testing Student class works ok and up-to-date
+    task return HomeworkResult class with correct attributes
+    """
+    student = Student('FirstName', 'LastName')
+    task = Homework('Some task', 1)
+    solution = 'dummy_solution'
+    correct_result = HomeworkResult(student, task, solution)
 
-    assert student.first_name == 'Vasiliy'
-    assert student.last_name == 'Terkin'
-    assert student.do_homework(task) == task
-    assert not capsys.readouterr().out
+    result = student.do_homework(task, solution)
+
+    assert result == correct_result
 
 
 def test_student_is_late(capsys):
-    """Testing Student class works ok and overdue task return None"""
-    student = Student('Vasiliy', 'Terkin')
-    task = Homework('Be a hero', 0)
+    """Testing Student class works ok and overdue task raise DeadlineError"""
+    student = Student('FirstName', 'LastName')
+    task = Homework('Some task', 0)
+    solution = 'dummy_solution'
+    std_output = '__main__.DeadlineError: You are late'
 
-    assert student.first_name == 'Vasiliy'
-    assert student.last_name == 'Terkin'
-    assert not student.do_homework(task)
-    assert capsys.readouterr().out == 'You are late'
+    with pytest.raises(DeadlineError):
+        student.do_homework(task, solution)
+        assert capsys.readouterr().out == std_output
