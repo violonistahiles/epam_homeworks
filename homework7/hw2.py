@@ -26,8 +26,7 @@ def process_string(string: str) -> str:
     split_string = string.split('#')
 
     # Process all splits except last
-    words = split_string[:-1]
-    proc_words = [word[:-1] for word in words]
+    proc_words = [word[:-1] for word in split_string[:-1]]
     # Process last element from split
     if cut_last:
         proc_words.append(split_string[-1][:-1])

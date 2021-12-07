@@ -141,11 +141,11 @@ def test_find_occurrences_input_tree_dict():
 
 def test_find_occurrences_input_tree_not_dict():
     """Testing find_occurrences raise error when tree is not a dict"""
-    test_tree = [1, 2, 3]
+    test_branch = [1, 2, 3]
     element_to_compare = 25
 
     with pytest.raises(NotDictError):
-        _ = find_occurrences(test_tree, element_to_compare)
+        _ = find_occurrences(test_branch, element_to_compare)
 
 
 def test_process_branch_with_iterable_input():
@@ -153,13 +153,13 @@ def test_process_branch_with_iterable_input():
     Testing process_branch invoke process_value
     times equal to branch length
     """
-    test_tree = [1, 2, 'ads']
+    test_branch = [1, 2, 'ads']
     element_to_compare = 25
-    correct_result = len(test_tree)
+    correct_result = len(test_branch)
     mock = Mock(return_value=1)
 
     with patch('homework7.hw1.process_value', mock):
-        test_result = process_branch(test_tree, element_to_compare)
+        test_result = process_branch(test_branch, element_to_compare)
         assert test_result == correct_result
 
 
