@@ -31,20 +31,27 @@ class EmptyLineError(Exception):
 
 class LineState:
     """Store states of one line from board"""
-    def __init__(self, x_win: bool, y_win: bool, unfinished: bool) -> None:
+    def __init__(self, x_win: bool, o_win: bool, unfinished: bool) -> None:
         self.x_win = x_win
-        self.y_win = y_win
+        self.o_win = o_win
         self.unfinished = unfinished
+
+    def __eq__(self, other):
+        attributes_to_check = ['x_win', 'o_win', 'unfinished']
+        for attribute in attributes_to_check:
+            if self.__dict__[attribute] != other.__dict__[attribute]:
+                return False
+        return True
 
 
 def check_line(line_type: str, board: List[List], index: int = 0) -> LineState:
     """Collect states from one line on board"""
     list_to_check = get_line(line_type, board, index)
     x_win = all([cell == 'x' for cell in list_to_check])
-    y_win = all([cell == 'o' for cell in list_to_check])
+    o_win = all([cell == 'o' for cell in list_to_check])
     unfinished = bool('-' in list_to_check)
 
-    state = LineState(x_win, y_win, unfinished)
+    state = LineState(x_win, o_win, unfinished)
     return state
 
 
@@ -77,7 +84,7 @@ def check_states(states: List[LineState]) -> str:
     if any([state.x_win for state in states]):
         return 'x wins!'
 
-    if any([state.y_win for state in states]):
+    if any([state.o_win for state in states]):
         return 'o wins!'
 
     if any([state.unfinished for state in states]):
@@ -104,35 +111,3 @@ def tic_tac_toe_checker(board: List[List]) -> str:
     board_states = get_states(board)
     result = check_states(board_states)
     return result
-
-
-if __name__ == '__main__':
-    test_board = [['-', '-', 'o'],
-                  ['-', 'o', 'o'],
-                  ['x', 'x', 'x']]
-
-    print(tic_tac_toe_checker(test_board))
-
-    test_board = [['-', '-', 'o'],
-                  ['-', 'x', 'o'],
-                  ['x', 'o', 'x']]
-
-    print(tic_tac_toe_checker(test_board))
-
-    test_board = [['-', '-', 'x'],
-                  ['-', 'x', 'o'],
-                  ['x', 'o', 'x']]
-
-    print(tic_tac_toe_checker(test_board))
-
-    test_board = [['-', '-', 'x'],
-                  ['o', 'o', 'o'],
-                  ['x', 'o', 'x']]
-
-    print(tic_tac_toe_checker(test_board))
-
-    test_board = [['o', 'x', 'o'],
-                  ['o', 'x', 'o'],
-                  ['x', 'o', 'x']]
-
-    print(tic_tac_toe_checker(test_board))

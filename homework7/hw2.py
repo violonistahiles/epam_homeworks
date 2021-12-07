@@ -42,25 +42,3 @@ def backspace_compare(first: str, second: str):
     second_result = process_string(second)
 
     return first_result == second_result
-
-
-if __name__ == '__main__':
-    s = "ab#c"
-    t = "ad#c"
-    print(backspace_compare(s, t), end='\n\n')
-
-    s = "a##c"
-    t = "#a#c"
-    print(backspace_compare(s, t), end='\n\n')
-
-    s = "a##casd#"
-    t = "#a#casd#"
-    print(backspace_compare(s, t), end='\n\n')
-
-    s = "a#c"
-    t = "b"
-    print(backspace_compare(s, t), end='\n\n')
-
-    s = "a#c"
-    t = "b#"
-    print(backspace_compare(s, t))
