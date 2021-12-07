@@ -198,7 +198,7 @@ def test_get_states():
 
 
 def test_tic_tac_toe_checker():
-    """Testing get_states invoked only 8 times"""
+    """Testing tic_tac_toe_checker logic work fine"""
     dummy_board = [[]]
     mock_one = Mock(return_value='some_states')
     mock_two = Mock(return_value='test_result')

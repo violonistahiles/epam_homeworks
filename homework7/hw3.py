@@ -107,7 +107,7 @@ def get_states(board: List[List]) -> List[LineState]:
 
 
 def tic_tac_toe_checker(board: List[List]) -> str:
-    """Check current game state"""
+    """Check current game state for 3x3 tic tac toe game"""
     board_states = get_states(board)
     result = check_states(board_states)
     return result
