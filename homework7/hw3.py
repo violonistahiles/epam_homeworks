@@ -31,15 +31,16 @@ class EmptyLineError(Exception):
 
 class LineState:
     """Store states of one line from board"""
+    __slots__ = ['x_win', 'o_win', 'unfinished']
+
     def __init__(self, x_win: bool, o_win: bool, unfinished: bool) -> None:
         self.x_win = x_win
         self.o_win = o_win
         self.unfinished = unfinished
 
     def __eq__(self, other):
-        attributes_to_check = ['x_win', 'o_win', 'unfinished']
-        for attribute in attributes_to_check:
-            if self.__dict__[attribute] != other.__dict__[attribute]:
+        for attr in self.__slots__:
+            if self.__getattribute__(attr) != other.__getattribute__(attr):
                 return False
         return True
 
