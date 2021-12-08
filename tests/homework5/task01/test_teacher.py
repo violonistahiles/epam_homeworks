@@ -12,7 +12,7 @@ def test_teacher_create_homework():
     assert teacher.first_name == 'Daniil'
     assert teacher.last_name == 'Shadrin'
     assert task.deadline.days == 1
-    assert task.text == 'Be a hero'
+    assert task._text == 'Be a hero'
 
 
 def test_teacher_create_homework_as_static():
@@ -21,5 +21,5 @@ def test_teacher_create_homework_as_static():
     time.sleep(0.01)
 
     assert task.deadline.days == 1
-    assert task.text == 'Be a hero'
+    assert task._text == 'Be a hero'
     assert task.is_active()

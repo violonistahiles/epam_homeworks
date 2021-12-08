@@ -47,9 +47,9 @@ if __name__ == '__main__':
     student.first_name  # Petrov
 
     expired_homework = teacher.create_homework('Learn functions', 0)
-    expired_homework.created  # Example: 2019-05-26 16:44:30.688762
+    expired_homework._created  # Example: 2019-05-26 16:44:30.688762
     expired_homework.deadline  # 0:00:00
-    expired_homework.text  # 'Learn functions'
+    expired_homework._text  # 'Learn functions'
 
     # create function from method and use it
     create_homework_too = teacher.create_homework

@@ -13,7 +13,7 @@ def test_deadline():
     deadline = test_task.deadline.days
 
     assert deadline == 1
-    assert test_task.text == 'Be a hero'
+    assert test_task._text == 'Be a hero'
 
 
 def test_is_active_when_is_active():
