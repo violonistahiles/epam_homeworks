@@ -59,14 +59,14 @@ class TimeToSolveError(Exception):
 
 class Person:
     """Basic class for any person"""
-    def __init__(self, first_name: str, last_name: str) -> None:
+    def __init__(self, first_name: str, last_name: str):
         self.first_name = first_name
         self.last_name = last_name
 
 
 class Homework:
     """Class for storing information about task and its time to complete"""
-    def __init__(self, text: str, days_to_solve: int) -> None:
+    def __init__(self, text: str, days_to_solve: int):
         if days_to_solve < 0:
             raise TimeToSolveError
 
@@ -82,9 +82,7 @@ class Homework:
 
     def is_active(self) -> bool:
         current_time = datetime.datetime.now()
-        if current_time >= self.final_day:
-            return False
-        return True
+        return False if current_time >= self.final_day else True
 
 
 class HomeworkResult:
@@ -92,7 +90,7 @@ class HomeworkResult:
     def __init__(self,
                  author: Person,
                  homework: Homework,
-                 solution: str) -> None:
+                 solution: str):
 
         if not isinstance(homework, Homework):
             raise HomeworkTypeError('You gave a not Homework object')
@@ -100,7 +98,7 @@ class HomeworkResult:
         self.homework = homework
         self.author = author
         self.solution = solution
-        self.created = homework.created
+        self.created = datetime.datetime.now()
         self.attributes = ['homework', 'author', 'solution', 'created']
 
     def __eq__(self, other):
@@ -141,7 +139,7 @@ class Teacher(Person):
 
     @classmethod
     def reset_results(cls, homework: Union[None, Homework] = None) -> None:
-        if homework is not None:
+        if homework:
             cls.homework_done.pop(homework)
         else:
             cls.homework_done.clear()
