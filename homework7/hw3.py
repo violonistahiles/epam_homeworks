@@ -33,7 +33,7 @@ class LineState:
     """Store states of one line from board"""
     __slots__ = ['x_win', 'o_win', 'unfinished']
 
-    def __init__(self, x_win: bool, o_win: bool, unfinished: bool) -> None:
+    def __init__(self, x_win: bool, o_win: bool, unfinished: bool):
         self.x_win = x_win
         self.o_win = o_win
         self.unfinished = unfinished
