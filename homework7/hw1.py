@@ -16,7 +16,7 @@ example_tree = {
     },
     "third": {
         "abc": "BLUE",
-        "jhl": "RED",
+        "RED": "RED",
         "complex_key": {
             "key1": "value1",
             "key2": "RED",
@@ -27,7 +27,7 @@ example_tree = {
 }
 
 
-types_to_process = (int, bool, str)
+basic_types_to_compare = (int, bool, str)
 all_types = (str, list, tuple, dict, set, int, bool)
 
 
@@ -46,7 +46,7 @@ def compare_element(value: Any, element: Any) -> int:
 def process_branch(branch: Any, element: Any) -> int:
     """Step recursively through the branch"""
     # Check if branch is int, str or bool to stop recursion
-    if isinstance(branch, types_to_process):
+    if isinstance(branch, basic_types_to_compare):
         result = compare_element(branch, element)
         return result
 
@@ -63,6 +63,7 @@ def process_value(value: Any, element: Any) -> int:
     else go deeper in value structure
     """
     result = 0
+    # Stop recursion if value equal to element
     if isinstance(value, type(element)):
         result = compare_element(value, element)
         if result:
@@ -70,7 +71,10 @@ def process_value(value: Any, element: Any) -> int:
 
     # If dict -> iterate by its values
     if isinstance(value, dict):
+        keys = value.keys()
         value = value.values()
+        result += process_branch(keys, element)
+
     result += process_branch(value, element)
 
     return result
