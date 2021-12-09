@@ -18,27 +18,84 @@ Examples:
     Explanation: s becomes "c" while t becomes "b".
 
 """
+from typing import Generator, Iterator
 
 
-def process_string(string: str) -> str:
+class CharGenerator:
+    """Generator for iterating through the string"""
+    def __init__(self, gen: Iterator, length: int):
+        """
+        :param gen: char generator from string
+        :param length: string length
+        """
+        self.gen = gen
+        self.length = length
+        self.current = 0  # To count number of processed elements
+
+    def __len__(self):
+        return self.length
+
+    def __iter__(self):
+        return self.gen
+
+    def __next__(self):
+        self.current += 1
+        return next(self.gen)
+
+
+def process_string(string: str) -> Generator:
     """Process backspacing in string"""
-    cut_last = string.endswith('#')
-    split_string = string.split('#')
+    char_gen = CharGenerator(reversed(string), len(string))
+    backspace_counter = 0
 
-    # Process all splits except last
-    proc_words = [word[:-1] for word in split_string[:-1]]
-    # Process last element from split
-    if cut_last:
-        proc_words.append(split_string[-1][:-1])
-    else:
-        proc_words.append(split_string[-1])
+    while char_gen.current < len(char_gen):
 
-    return ''.join(proc_words)
+        char = next(char_gen)
+        # If char is '#' collect number of characters to miss
+        while char == '#' and char_gen.current < len(char_gen):
+            backspace_counter += 1
+            char = next(char_gen)
+        # Because last char from previous loop is not '#'
+        # miss backspace_counter-1 number of characters in this loop
+        while backspace_counter and char_gen.current < len(char_gen):
+            char = next(char_gen)
+            backspace_counter -= 1
+
+        if char != '#':
+            yield char
+        else:
+            backspace_counter += 1
+
+
+def collect_data(string: str) -> str:
+    """Service function to form string from generated list"""
+    str_list = list(process_string(string))
+    return ''.join(str_list)[::-1]
 
 
 def backspace_compare(first: str, second: str):
-    """Compare two strings after processing backspace characters"""
-    first_result = process_string(first)
-    second_result = process_string(second)
+    """
+    Compare two strings after processing backspace characters
+    :param first: first string
+    :param second: second string
+    """
+    first_result = collect_data(first)
+    print(first_result)
+    second_result = collect_data(second)
+    print(second_result)
 
     return first_result == second_result
+
+
+if __name__ == '__main__':
+    s = "ab#c"
+    t = "ad#c"
+    print(backspace_compare(s, t))
+
+    s = "a##c"
+    t = "#a#c"
+    print(backspace_compare(s, t))
+
+    s = "####"
+    t = "#a#c"
+    print(backspace_compare(s, t))

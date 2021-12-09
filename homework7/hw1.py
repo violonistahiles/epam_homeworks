@@ -69,7 +69,7 @@ def process_value(value: Any, element: Any) -> int:
         if result:
             return result
 
-    # If dict -> iterate by its values
+    # If dict -> iterate by its keys and after if by its values
     if isinstance(value, dict):
         keys = value.keys()
         value = value.values()

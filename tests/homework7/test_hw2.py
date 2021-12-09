@@ -1,9 +1,9 @@
 from unittest.mock import Mock, patch
 
-from homework7.hw2 import backspace_compare, process_string
+from homework7.hw2 import backspace_compare, collect_data
 
 
-def test_process_string_all_backspaces():
+def test_collect_data_all_backspaces():
     """
     Testing if string full of '#' characters
     function will return empty string
@@ -11,12 +11,12 @@ def test_process_string_all_backspaces():
     test_string = '#####'
     correct_result = ''
 
-    test_result = process_string(test_string)
+    test_result = collect_data(test_string)
 
     assert test_result == correct_result
 
 
-def test_process_string_backspace_at_the_end():
+def test_collect_data_backspace_at_the_end():
     """
     Testing if string with '#' characters in the end
     function will cut only [-2] character from string
@@ -24,18 +24,30 @@ def test_process_string_backspace_at_the_end():
     test_string = 'abc#'
     correct_result = 'ab'
 
-    test_result = process_string(test_string)
+    test_result = collect_data(test_string)
 
     assert test_result == correct_result
 
 
-def test_process_string_with_multiple_backspaces():
+def test_collect_data_two_backspaces():
     """
-    Testing function cut all characters before '#'"""
+    Testing if string contain '##' characters
+    function will remove two following letters
+    """
+    test_string = 'afb##c#'
+    correct_result = 'a'
+
+    test_result = collect_data(test_string)
+
+    assert test_result == correct_result
+
+
+def test_collect_data_with_multiple_backspaces():
+    """Testing function cut all characters before '#'"""
     test_string = 'ab#fs#c#'
     correct_result = 'af'
 
-    test_result = process_string(test_string)
+    test_result = collect_data(test_string)
 
     assert test_result == correct_result
 
