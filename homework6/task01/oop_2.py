@@ -60,6 +60,10 @@ class TimeToSolveError(Exception):
 class Person:
     """Basic class for any person"""
     def __init__(self, first_name: str, last_name: str):
+        """
+        :param first_name: First name of the person
+        :param last_name: Last name of the person
+        """
         self.first_name = first_name
         self.last_name = last_name
 
@@ -67,6 +71,10 @@ class Person:
 class Homework:
     """Class for storing information about task and its time to complete"""
     def __init__(self, text: str, days_to_solve: int):
+        """
+        :param text: Task description
+        :param days_to_solve: Time to solve task
+        """
         if days_to_solve < 0:
             raise TimeToSolveError
 
@@ -76,11 +84,13 @@ class Homework:
 
     @property
     def deadline(self) -> datetime.timedelta:
+        """Time in days to complete the task"""
         current_time = datetime.datetime.now()
         delta = self.final_day - current_time
         return delta
 
     def is_active(self) -> bool:
+        """Check if there is time to solve the task"""
         current_time = datetime.datetime.now()
         return False if current_time >= self.final_day else True
 
@@ -91,7 +101,11 @@ class HomeworkResult:
                  author: Person,
                  homework: Homework,
                  solution: str):
-
+        """
+        :param author: Person who created solution for a task
+        :param homework: Task to which solution related
+        :param solution: Solution for a task
+        """
         if not isinstance(homework, Homework):
             raise HomeworkTypeError('You gave a not Homework object')
 
@@ -99,7 +113,7 @@ class HomeworkResult:
         self.author = author
         self.solution = solution
         self.created = datetime.datetime.now()
-        self.attributes = ['homework', 'author', 'solution', 'created']
+        self.attributes = ['homework', 'author', 'solution']
 
     def __eq__(self, other):
         for attribute in self.attributes:
@@ -117,6 +131,10 @@ class Student(Person):
                     homework: Homework,
                     solution: str
                     ) -> Union[HomeworkResult, None]:
+        """
+        :param homework: Task to which student create solution
+        :param solution: Solution to the task
+        """
         if not homework.is_active():
             raise DeadlineError('You are late')
         return HomeworkResult(self, homework, solution)
@@ -124,14 +142,22 @@ class Student(Person):
 
 class Teacher(Person):
     """Abstract teacher with first and last name which can create task"""
+    # Storage for homework and its solutions
     homework_done = defaultdict(set)
 
     @staticmethod
     def create_homework(text: str, days_to_solve: int) -> Homework:
+        """
+        :param text: String definition of task
+        :param days_to_solve: Time in days to solve task
+        """
         return Homework(text, days_to_solve)
 
     def check_homework(self, result: HomeworkResult) -> bool:
-        """Check if number of symbols in solution is greater then 5"""
+        """
+        Check if number of symbols in solution is greater then 5
+        :param result: Instance of the solution for a task
+        """
         if len(result.solution) > 5:
             self.homework_done[result.homework].add(result)
             return True
@@ -139,6 +165,10 @@ class Teacher(Person):
 
     @classmethod
     def reset_results(cls, homework: Union[None, Homework] = None) -> None:
+        """
+        Delete one or all homework examples from homework storage
+        :param homework: Homework to delete from storage
+        """
         if homework:
             cls.homework_done.pop(homework)
         else:
