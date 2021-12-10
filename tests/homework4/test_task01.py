@@ -1,13 +1,13 @@
 import pytest
 
-from homework4.task_1_read_file import FileNotExists, read_magic_number
+from homework4.task_1_read_file import read_magic_number
 
 
 def test_path_not_exists_case():
     """Testing function work if path is not exists"""
     dummy_path = 'dummy_path'
 
-    with pytest.raises(FileNotExists):
+    with pytest.raises(ValueError):
         read_magic_number(dummy_path)
 
 

@@ -40,5 +40,3 @@ def my_precious_logger(text: str) -> None:
         stderr_cache.write(text + '\n')
     else:
         stdout_cache.write(text + '\n')
-
-    return None
