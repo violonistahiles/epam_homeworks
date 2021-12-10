@@ -11,12 +11,18 @@ from typing import Any, Optional
 
 
 def instances_counter(cls: object) -> object:
-    """Store information about number of created cls instances"""
+    """
+    Store information about number of created cls instances
+    :param cls: Class for which instances number is counted
+    """
     instances_number = 0
 
     some_init = cls.__init__
 
     def init(self, *args: Any, **kwargs: Optional[Any]) -> None:
+        """
+        New init function which perform instance number incrementation
+        """
         nonlocal instances_number
         instances_number += 1
         some_init(self, *args, **kwargs)
