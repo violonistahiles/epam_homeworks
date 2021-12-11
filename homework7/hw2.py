@@ -26,7 +26,9 @@ class CharGenerator:
     def __init__(self, gen: Iterator, length: int):
         """
         :param gen: char generator from string
+        :type gen: Iterator
         :param length: string length
+        :type length: int
         """
         self.gen = gen
         self.length = length
@@ -45,8 +47,12 @@ class CharGenerator:
 
 def process_string(string: str) -> Generator:
     """
-    Process backspacing in string
+    Delete symbols in string according to backspacing
+
     :param string: String to process
+    :type string: str
+    :return: Generator for saved lettres
+    :rtype: Generator
     """
     char_gen = CharGenerator(reversed(string), len(string))
     backspace_counter = 0
@@ -73,17 +79,26 @@ def process_string(string: str) -> Generator:
 def collect_data(string: str) -> str:
     """
     Service function to form string from generated list
+
     :param string: String to process
+    :type string: str
+    :return: String after backspace processing
+    :rtype: str
     """
     str_list = list(process_string(string))
     return ''.join(str_list)[::-1]
 
 
-def backspace_compare(first: str, second: str):
+def backspace_compare(first: str, second: str) -> bool:
     """
     Compare two strings after processing backspace characters
+
     :param first: first string
+    :type first: str
     :param second: second string
+    :type second: str
+    :return: Result of comparison of two strings after backspace processing
+    :rtype: bool
     """
     first_result = collect_data(first)
     print(first_result)
