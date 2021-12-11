@@ -13,7 +13,9 @@ from typing import Any, Optional
 def instances_counter(cls: object) -> object:
     """
     Store information about number of created cls instances
+
     :param cls: Class for which instances number is counted
+    :type cls: object
     """
     instances_number = 0
 
@@ -21,7 +23,8 @@ def instances_counter(cls: object) -> object:
 
     def init(self, *args: Any, **kwargs: Optional[Any]) -> None:
         """
-        New init function which perform instance number incrementation
+        New init function which perform previous init functionality and
+        instance number incrementation
         """
         nonlocal instances_number
         instances_number += 1

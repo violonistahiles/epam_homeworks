@@ -27,7 +27,7 @@ def test_homeworkresult():
     assert test_hwresult.author == person
     assert test_hwresult.homework == task
     assert test_hwresult.solution == solution
-    assert test_hwresult.created == task.created
+    assert test_hwresult.created == task._created
 
 
 def test_compare_two_homeworkresults_when_equal():
