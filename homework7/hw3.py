@@ -36,8 +36,11 @@ class LineState:
     def __init__(self, x_win: bool, o_win: bool, unfinished: bool):
         """
         :param x_win: Flag if in current board state x is win
+        :type x_win: bool
         :param o_win: Flag if in current board state o is win
+        :type o_win: bool
         :param unfinished: Flag if current board state is unfinished
+        :type unfinished: bool
         """
         self.x_win = x_win
         self.o_win = o_win
@@ -51,7 +54,18 @@ class LineState:
 
 
 def check_line(line_type: str, board: List[List], index: int = 0) -> LineState:
-    """Collect states from one line on board"""
+    """
+    Collect states from one line on board
+
+    :param line_type: String description of board position to check
+    :type line_type: str
+    :param board: List of lists containing game board horizontal lines
+    :type board: List[List]
+    :param index: Line number in board to check
+    :type index: int
+    :return: LineState instance with current board line status
+    :rtype: LineState
+    """
     list_to_check = get_line(line_type, board, index)
     x_win = all([cell == 'x' for cell in list_to_check])
     o_win = all([cell == 'o' for cell in list_to_check])
@@ -62,7 +76,18 @@ def check_line(line_type: str, board: List[List], index: int = 0) -> LineState:
 
 
 def get_line(line_type: str, board: List[List], index: int = 0) -> List[str]:
-    """Define elements from board for current line"""
+    """
+    Define elements from board for current line
+
+    :param line_type: String description of board position to check
+    type line_type: str
+    :param board: List of lists containing game board horizontal lines
+    :type board: List[List]
+    :param index: Line number in board to check
+    :type index: int
+    :return: Line from board for checking
+    :rtype: List[str]
+    """
     list_to_check = empty_element  # sentinel
 
     if line_type == 'horizontal':
@@ -86,7 +111,14 @@ def get_line(line_type: str, board: List[List], index: int = 0) -> List[str]:
 
 
 def check_states(states: List[LineState]) -> str:
-    """Check conditions for all possible game states"""
+    """
+    Check conditions for all possible game states
+
+    :param states: List with states of all possible game variants for win
+    :type states: List[LineState]
+    :return: String description of current game board situation
+    :rtype: str
+    """
     if any([state.x_win for state in states]):
         return 'x wins!'
 
@@ -100,7 +132,14 @@ def check_states(states: List[LineState]) -> str:
 
 
 def get_states(board: List[List]) -> List[LineState]:
-    """Process all possible game states"""
+    """
+    Process all possible game states
+
+    :param board: List of lists containing game board horizontal lines
+    :type board: List[List]
+    :return: List with states of all possible game variants for win
+    :rtype: List[LineState]
+    """
     states = list()
     states.append(check_line('positive_diagonal', board))
     states.append(check_line('negative_diagonal', board))
@@ -113,7 +152,14 @@ def get_states(board: List[List]) -> List[LineState]:
 
 
 def tic_tac_toe_checker(board: List[List]) -> str:
-    """Check current game state for 3x3 tic tac toe game"""
+    """
+    Check current game state for 3x3 tic tac toe game
+
+    :param board: List of lists containing game board horizontal lines
+    :type board: List[List]
+    :return: String description of current game board situation
+    :rtype: str
+    """
     board_states = get_states(board)
     result = check_states(board_states)
     return result
