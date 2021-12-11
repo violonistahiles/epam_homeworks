@@ -36,7 +36,15 @@ class NotDictError(Exception):
 
 
 def compare_element(value: Any, element: Any) -> int:
-    """Compare value and element"""
+    """
+    Compare value and element
+    :param value: Value to compare with element
+    :type value: Any
+    :param element: Searching element
+    :type element: Any
+    :return: 1 - if value equal to element and 0 otherwise
+    :rtype: int
+    """
     if isinstance(element, all_types):
         return int(value == element)
 
@@ -44,7 +52,16 @@ def compare_element(value: Any, element: Any) -> int:
 
 
 def process_branch(branch: Any, element: Any) -> int:
-    """Step recursively through the branch"""
+    """
+    Step recursively through the branch
+
+    :param branch: Current tree branch for searching element
+    :type branch: Any
+    :param element: Searching element
+    :type element: Any
+    :return: Number of element occurrences in branch
+    :rtype: int
+    """
     # Check if branch is int, str or bool to stop recursion
     if isinstance(branch, basic_types_to_compare):
         result = compare_element(branch, element)
@@ -61,6 +78,13 @@ def process_value(value: Any, element: Any) -> int:
     """
     Check if value can be compared with element,
     else go deeper in value structure
+
+    :param value: Current tree element to compare with searching element
+    :type value: Any
+    :param element: Searching element
+    :type element: Any
+    :return: Number of element occurrences in value
+    :rtype: int
     """
     result = 0
     # Stop recursion if value equal to element
@@ -81,8 +105,16 @@ def process_value(value: Any, element: Any) -> int:
 
 
 def find_occurrences(tree: dict, element: Any) -> int:
-    """Count the number of element occurrences in tree"""
+    """
+    Count the number of element occurrences in tree
 
+    :param tree: Dictionary
+    :type tree: dict
+    :param element: Element to find and count in tree
+    :type element: Any
+    :return: Number of element occurrences in tree
+    :rtype: int
+    """
     if not isinstance(tree, dict):
         raise NotDictError
 

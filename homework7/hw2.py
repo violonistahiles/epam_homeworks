@@ -44,7 +44,10 @@ class CharGenerator:
 
 
 def process_string(string: str) -> Generator:
-    """Process backspacing in string"""
+    """
+    Process backspacing in string
+    :param string: String to process
+    """
     char_gen = CharGenerator(reversed(string), len(string))
     backspace_counter = 0
 
@@ -68,7 +71,10 @@ def process_string(string: str) -> Generator:
 
 
 def collect_data(string: str) -> str:
-    """Service function to form string from generated list"""
+    """
+    Service function to form string from generated list
+    :param string: String to process
+    """
     str_list = list(process_string(string))
     return ''.join(str_list)[::-1]
 

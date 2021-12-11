@@ -34,6 +34,11 @@ class LineState:
     __slots__ = ['x_win', 'o_win', 'unfinished']
 
     def __init__(self, x_win: bool, o_win: bool, unfinished: bool):
+        """
+        :param x_win: Flag if in current board state x is win
+        :param o_win: Flag if in current board state o is win
+        :param unfinished: Flag if current board state is unfinished
+        """
         self.x_win = x_win
         self.o_win = o_win
         self.unfinished = unfinished
