@@ -2,3 +2,4 @@ GETITEM = 'SELECT * from {} where name=:item'
 LEN = 'SELECT count(*) from {}'
 COLUMNS = 'SELECT * from {}'
 ITER = 'SELECT * from {}'
+TABLES = "SELECT name FROM sqlite_master WHERE type='table';"

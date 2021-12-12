@@ -1,7 +1,9 @@
 import os
 import sqlite3
 
-from homework8.task02 import TableData
+import pytest
+
+from homework8.task02 import DatabaseNotExistError, TableData, TableNotExists
 
 
 def test_len_method():
@@ -75,3 +77,21 @@ def test_update_table():
     cursor.execute("delete from presidents where name='Putin'")
     conn.commit()
     conn.close()
+
+
+def test_table_not_exists():
+    """Testing if table is not exists in database raise TableNotExists"""
+    database_name = 'example.db'
+    test_table = 'animals'
+
+    with pytest.raises(TableNotExists):
+        _ = TableData(database_name, test_table)
+
+
+def test_database_not_exists():
+    """Testing if database is not exists raise DatabaseNotExistError"""
+    database_name = 'dummy_db'
+    test_table = 'presidents'
+
+    with pytest.raises(DatabaseNotExistError):
+        _ = TableData(database_name, test_table)

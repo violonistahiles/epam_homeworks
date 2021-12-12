@@ -5,6 +5,14 @@ from typing import Generator, List
 import toml
 
 
+class DatabaseNotExistError(Exception):
+    """Database with specified filename is not exists"""
+
+
+class TableNotExists(Exception):
+    """This table is not exists in the database"""
+
+
 def column_value_gen(data: sqlite3.Cursor, columns: List[str]) -> Generator:
     """
     Generator for database response instances
@@ -33,6 +41,7 @@ class TableData:
         self._dir_path = os.path.join(current_path, 'homework8')
         self._prepare_database(database_name)
         self._read_commands(table_name)
+        self._check_table(table_name)
 
     def _prepare_database(self, database_name):
         """
@@ -41,9 +50,25 @@ class TableData:
         :param database_name: Filename of database
         :type database_name: str
         """
-        self._database_name = os.path.join(self._dir_path, database_name)
-        self._conn = sqlite3.connect(self._database_name)
+        database_path = os.path.join(self._dir_path, database_name)
+        if not os.path.exists(database_path):
+            raise DatabaseNotExistError
+
+        self._conn = sqlite3.connect(database_path)
         self._cursor = self._conn.cursor()
+
+    def _check_table(self, table_name):
+        """
+        Check if database contain table with specified name
+
+        :param table_name: Table name from database for interaction
+        :type table_name: str
+        """
+        db_tables = self._cursor.execute(self._commands['TABLES']).fetchall()
+        tables = [table[0] for table in db_tables]
+        print(table_name, tables)
+        if table_name not in tables:
+            raise TableNotExists
 
     def _read_commands(self, table_name):
         """
@@ -52,8 +77,8 @@ class TableData:
         :param table_name: Table name from database for interaction
         :type table_name: str
         """
-        self._commands_file = os.path.join(self._dir_path, 'cmd.toml')
-        with open(self._commands_file) as fi:
+        commands_file = os.path.join(self._dir_path, 'cmd.toml')
+        with open(commands_file) as fi:
             self._commands = toml.load(fi)
 
         for act in self._commands:
@@ -81,8 +106,7 @@ class TableData:
 
     def __contains__(self, item):
         result = self.__getitem__(item)
-        if result:
-            return True
+        return True if result else False
 
     def __iter__(self):
         self._read_table_columns()  # Update columns if table was changed
