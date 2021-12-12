@@ -25,16 +25,22 @@ memory.
 from typing import Generator, Tuple, Union
 
 
-def line_gen(path: str) -> Generator:
+def line_gen(
+        path: str, encoding: str = 'utf-8', errors: str = 'ignore'
+) -> Generator:
     """
     Read file line by line
 
     :param path: Path to the file
     :type path: str
+    :param encoding: Codec for encoding (more info python build-in open)
+    :type encoding: str
+    :param errors: Way to handle errors (more info python build-in open)
+    :type errors: str
     :return: Generator yielding lines from file
     :rtype: Generator
     """
-    with open(path, 'r') as fi:
+    with open(path, 'r', encoding=encoding, errors=errors) as fi:
         line = fi.readline()
         while line and '\n' in line:
             yield line
@@ -72,17 +78,17 @@ def process_line(line: str) -> Tuple[Union[int, str], Union[int, str]]:
 
 
 class KeyValueStorage:
-    def __init__(self, path):
-        self._get_keys_and_values(path)
+    def __init__(self, path, *args, **kwargs):
+        self._get_keys_and_values(path, *args, **kwargs)
 
-    def _get_keys_and_values(self, path):
+    def _get_keys_and_values(self, path, *args, **kwargs):
         """
         Assign key value pairs from file to class attributes
 
         :param path: Path to the file
         :type path: str
         """
-        lines = line_gen(path)
+        lines = line_gen(path, *args, **kwargs)
         for line in lines:
             key, value = process_line(line)
 

@@ -33,7 +33,7 @@ def test_int_key_raise_valueerror(tmpdir):
 
 def test_attribute_clash_save_initial_attribute(tmpdir):
     """
-    Testing integer key in key value pair will raise error
+    Testing repeating key will not change existing attribute
     """
     test_text = 'name=kek\nname=top\n'
     tmp_path = tmpdir.mkdir("sub").join("tmp_text.txt")
