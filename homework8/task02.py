@@ -88,25 +88,3 @@ class TableData:
         self._read_table_columns()  # Update columns if table was changed
         self._samples = self._cursor.execute(self._commands['ITER'])
         return column_value_gen(self._samples, self._columns)
-
-
-if __name__ == '__main__':
-    test_database_name = 'example.db'
-    test_table = 'presidents'
-
-    presidents = TableData(test_database_name, test_table)
-    print(len(presidents))
-    print(presidents['Yeltsin'])
-    print('Yeltsin' in presidents)
-
-    for president in presidents:
-        print(president['name'])
-
-    # db_path = os.path.join(os.path.abspath(os.getcwd()),
-    #                        'homework8',
-    #                        test_database_name)
-    # conn = sqlite3.connect(db_path)
-    # cursor = conn.cursor()
-    # cursor.execute("delete from presidents where name='Putin'")
-    # cursor.execute("insert into presidents values('Putin', 56, 'ZIP')")
-    # conn.commit()
