@@ -1,0 +1,4 @@
+GETITEM = 'SELECT * from {} where name=:item'
+LEN = 'SELECT count(*) from {}'
+COLUMNS = 'SELECT * from {}'
+ITER = 'SELECT * from {}'
