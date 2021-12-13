@@ -7,7 +7,7 @@ from homework8.task02 import DatabaseNotExistError, TableData, TableNotExists
 
 
 def test_len_method():
-    """Testing TableData len method work correct"""
+    """Testing TableData len method works correctly"""
     database_name = 'example.db'
     test_table = 'presidents'
 
@@ -16,8 +16,11 @@ def test_len_method():
     assert len(presidents) == 3
 
 
-def test_getitem_method():
-    """Testing TableData getitem method work correct"""
+def test_getitem_method_when_item_in_table():
+    """
+    Testing TableData getitem method works
+    correctly when there is item in table
+    """
     database_name = 'example.db'
     test_table = 'presidents'
     correct_result = {'name': 'Yeltsin', 'age': 999, 'country': 'Russia'}
@@ -27,8 +30,21 @@ def test_getitem_method():
     assert presidents['Yeltsin'] == correct_result
 
 
+def test_getitem_method_when_no_item_in_table():
+    """
+    Testing TableData getitem method works
+    correctly when there is no item in table
+    """
+    database_name = 'example.db'
+    test_table = 'presidents'
+
+    presidents = TableData(database_name, test_table)
+
+    assert not presidents['Putin']
+
+
 def test_contains_method():
-    """Testing TableData contains method work correct"""
+    """Testing TableData contains method works correctly"""
     database_name = 'example.db'
     test_table = 'presidents'
 
@@ -39,7 +55,7 @@ def test_contains_method():
 
 
 def test_iter_method():
-    """Testing TableData iter method work correct"""
+    """Testing TableData iter method works correctly"""
     database_name = 'example.db'
     test_table = 'presidents'
     correct_results = [{'name': 'Yeltsin', 'age': 999, 'country': 'Russia'},

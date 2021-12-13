@@ -47,7 +47,7 @@ class TableData:
         """
         Create connection to database and set up cursor instance
 
-        :param database_name: Filename of database
+        :param database_name: Filename of the database
         :type database_name: str
         """
         database_path = os.path.join(self._dir_path, database_name)
