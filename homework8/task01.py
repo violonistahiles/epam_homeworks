@@ -57,8 +57,7 @@ def convert_to_int(input_value: str) -> Union[str, int]:
     :rtype: Union[str, int]
     """
     try:
-        input_value = int(input_value)
-        return input_value
+        return int(input_value)
     except ValueError:
         return input_value
 
