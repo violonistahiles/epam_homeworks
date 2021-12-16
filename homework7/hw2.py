@@ -18,31 +18,7 @@ Examples:
     Explanation: s becomes "c" while t becomes "b".
 
 """
-from typing import Generator, Iterator
-
-
-class CharGenerator:
-    """Generator for iterating through the string"""
-    def __init__(self, gen: Iterator, length: int):
-        """
-        :param gen: char generator from string
-        :type gen: Iterator
-        :param length: string length
-        :type length: int
-        """
-        self.gen = gen
-        self.length = length
-        self.current = 0  # To count number of processed elements
-
-    def __len__(self):
-        return self.length
-
-    def __iter__(self):
-        return self.gen
-
-    def __next__(self):
-        self.current += 1
-        return next(self.gen)
+from typing import Generator
 
 
 def process_string(string: str) -> Generator:
@@ -54,26 +30,18 @@ def process_string(string: str) -> Generator:
     :return: Generator for saved lettres
     :rtype: Generator
     """
-    char_gen = CharGenerator(reversed(string), len(string))
     backspace_counter = 0
 
-    while char_gen.current < len(char_gen):
-
-        char = next(char_gen)
-        # If char is '#' collect number of characters to miss
-        while char == '#' and char_gen.current < len(char_gen):
+    for letter in reversed(string):
+        if letter == '#':
             backspace_counter += 1
-            char = next(char_gen)
-        # Because last char from previous loop is not '#'
-        # miss backspace_counter-1 number of characters in this loop
-        while backspace_counter and char_gen.current < len(char_gen):
-            char = next(char_gen)
+            continue
+
+        if backspace_counter:
             backspace_counter -= 1
+            continue
 
-        if char != '#':
-            yield char
-        else:
-            backspace_counter += 1
+        yield letter
 
 
 def collect_data(string: str) -> str:
