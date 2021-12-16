@@ -6,6 +6,7 @@ of this element in the tree.
 Tree can only contains basic structures like:
     str, list, tuple, dict, set, int, bool
 """
+from itertools import chain
 from typing import Any
 
 # Example tree:
@@ -93,11 +94,9 @@ def process_value(value: Any, element: Any) -> int:
         if result:
             return result
 
-    # If dict -> iterate by its keys and after if by its values
+    # If dict -> iterate by its keys and values
     if isinstance(value, dict):
-        keys = value.keys()
-        value = value.values()
-        result += process_branch(keys, element)
+        value = chain(value.keys(), value.values())
 
     result += process_branch(value, element)
 
@@ -118,8 +117,11 @@ def find_occurrences(tree: dict, element: Any) -> int:
     if not isinstance(tree, dict):
         raise NotDictError
 
+    if element == tree:
+        return 1
+
     result = 0
-    for value in tree.values():
+    for value in chain(tree.keys(), tree.values()):
         result += process_value(value, element)
     return result
 

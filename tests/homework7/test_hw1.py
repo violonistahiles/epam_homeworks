@@ -93,22 +93,6 @@ def test_process_value_elements_with_equal_data_type():
         mock_ce.assert_called_once()
 
 
-def test_process_value_elements_with_different_data_type_but_value_dict():
-    """
-    Testing process_value invoke process_branch only once with
-    different value and element
-    """
-    element = {1: 2, 'a': 'b'}
-    element_to_compare = 12
-
-    def return_one(*args):
-        return 1
-
-    with patch('homework7.hw1.process_branch', return_one):
-        test_result = process_value(element, element_to_compare)
-        assert test_result == 2
-
-
 def test_process_value_elements_with_different_data_type_but_value_not_dict():
     """
     Testing process_value invoke process_branch only once with
@@ -140,7 +124,7 @@ def test_process_value_elements_with_equal_data_type_but_different_value():
     with patch('homework7.hw1.compare_element', mock) as mock_ce, \
             patch('homework7.hw1.process_branch', return_one):
         test_result = process_value(element, element_to_compare)
-        assert test_result == 2
+        assert test_result == 1
         mock_ce.assert_called_once()
 
 
@@ -180,7 +164,7 @@ def test_find_occurrences_input_tree_dict():
     """
     test_tree = {1: 2, 'a': 'b', (1, 'a'): 'c'}
     element_to_compare = 25
-    correct_result = len(test_tree)
+    correct_result = 6
     mock = Mock(return_value=1)
 
     with patch('homework7.hw1.process_value', mock):
