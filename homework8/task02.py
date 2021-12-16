@@ -1,8 +1,10 @@
 import os
 import sqlite3
-from typing import Generator, List
+from typing import Callable
 
 import toml
+
+empty_element = object()
 
 
 class DatabaseNotExistError(Exception):
@@ -13,31 +15,15 @@ class TableNotExists(Exception):
     """This table is not exists in the database"""
 
 
-def column_value_gen(data: sqlite3.Cursor, columns: List[str]) -> Generator:
-    """
-    Generator for database response instances
-
-    :param data: Response containing rows from database
-    :type data: sqlite3.Cursor
-    :param columns: Database table columns
-    :type columns: List[str]
-    :return: Generator for dict examples containing
-             column_name: data_example_from_column samples
-    :rtype: Generator
-    """
-    for data_example in data:
-        yield {key: value for key, value in zip(columns, data_example)}
-
-
-def prepare_database(func):
+def prepare_database(func: Callable) -> Callable:
     """
     Create connection to database and set up cursor instance during
     function execution
 
-    :param database_name: Filename of the database
-    :type database_name: str
+    :param func: Function to do some operation with database
+    :type func: Callable
     """
-    def wrapper(cls, *args, **kwargs):
+    def wrapper(cls: "TableData", *args, **kwargs):
         database_path = os.path.join(cls._dir_path, cls._database_name)
         if not os.path.exists(database_path):
             raise DatabaseNotExistError
@@ -64,27 +50,9 @@ class TableData:
         self._cursor = None
         self._dir_path = os.path.join(current_path, 'homework8')
         self._database_name = database_name
-        # self._prepare_database(database_name)
+
         self._read_commands(table_name)
         self._check_table(table_name)
-
-    # def _prepare_database(self, func):
-    #     """
-    #     Create connection to database and set up cursor instance
-    #
-    #     :param database_name: Filename of the database
-    #     :type database_name: str
-    #     """
-    #     database_path = os.path.join(self._dir_path, self._database_name)
-    #     if not os.path.exists(database_path):
-    #         raise DatabaseNotExistError
-    #
-    #     self._conn = sqlite3.connect(database_path)
-    #     self._cursor = self._conn.cursor()
-    #     result = func(self)
-    #     self._conn.close()
-    #
-    #     return result
 
     @prepare_database
     def _check_table(self, table_name):
@@ -99,7 +67,6 @@ class TableData:
         if table_name not in tables:
             raise TableNotExists
 
-    @prepare_database
     def _read_commands(self, table_name):
         """
         Set up command for interaction with database
@@ -131,18 +98,32 @@ class TableData:
     def __getitem__(self, item):
         self._read_table_columns()  # Update columns if table was changed
         sample = self._cursor.execute(self._commands['GETITEM'],
-                                      {'item': item})
+                                      {'name': item})
         result = sample.fetchall()
         if result:
             return {key: value for key, value in zip(self._columns, result[0])}
 
-    @prepare_database
     def __contains__(self, item):
         result = self.__getitem__(item)
         return True if result else False
 
-    @prepare_database
     def __iter__(self):
+        # Set flag for starting iteration from first sorted element from table
+        self.iter_value = empty_element
+        return self
+
+    @prepare_database
+    def __next__(self):
         self._read_table_columns()  # Update columns if table was changed
-        self._samples = self._cursor.execute(self._commands['ITER'])
-        return column_value_gen(self._samples, self._columns)
+        if self.iter_value == empty_element:
+            sample = self._cursor.execute(self._commands['ITER_START'])
+        else:
+            sample = self._cursor.execute(self._commands['ITER_NEXT'],
+                                          {'name': self.iter_value})
+        result = sample.fetchall()
+        if result:
+            elem = {key: value for key, value in zip(self._columns, result[0])}
+            self.iter_value = elem['name']
+            return elem
+
+        raise StopIteration

@@ -58,16 +58,18 @@ def test_iter_method():
     """Testing TableData iter method works correctly"""
     database_name = 'example.db'
     test_table = 'presidents'
-    correct_results = [{'name': 'Yeltsin', 'age': 999, 'country': 'Russia'},
-                       {'name': 'Trump', 'age': 1337, 'country': 'US'},
-                       {'name': 'Big Man Tyrone', 'age': 101,
-                        'country': 'Kekistan'}]
+    correct = [{'name': 'Big Man Tyrone', 'age': 101, 'country': 'Kekistan'},
+               {'name': 'Trump', 'age': 1337, 'country': 'US'},
+               {'name': 'Yeltsin', 'age': 999, 'country': 'Russia'}]
 
-    presidents = TableData(database_name, test_table)
+    table = TableData(database_name, test_table)
 
-    for correct_president, president_from_table in zip(correct_results,
-                                                       presidents):
+    # First iter call
+    for correct_president, president_from_table in zip(correct, table):
         assert president_from_table == correct_president
+
+    # Second iter call
+    assert len([president for president in table]) == 3
 
 
 def test_update_table():
