@@ -17,23 +17,23 @@ file2.txt:
 import math
 import os
 from pathlib import Path
-from typing import Generator, Iterator, List, Union
+from typing import Generator, Iterator, List, Optional, Union
 
 empty_object = object()
 
 
 def get_lines(file_path:  str,
-              encoding: str = 'utf-8',
-              errors: str = 'ignore') -> Generator:
+              encoding: Optional[str] = 'utf-8',
+              errors: Optional[str] = 'ignore') -> Generator:
     """
     Read file from file_path line by line
 
     :param file_path: Path to the file
     :type file_path: str
     :param encoding: Codec to decode symbols in file
-    :type encoding: str
+    :type encoding: Optional[str]
     :param errors: Flag defining the way to handle errors
-    :type errors: str
+    :type errors: Optional[str]
     :return: Generator yielding lines from file
     :rtype: Generator
     """
@@ -49,7 +49,8 @@ def get_lines(file_path:  str,
 
 
 def merge_sorted_files(file_list: 'List[Union[Path, str], ...]',
-                       *args, **kwargs) -> Iterator:
+                       encoding:  Optional[str] = 'utf-8',
+                       errors: Optional[str] = 'ignore') -> Iterator:
     """
     Merge integers in increasing order from a list of files
     File structure example:
@@ -60,13 +61,18 @@ def merge_sorted_files(file_list: 'List[Union[Path, str], ...]',
 
     :param file_list: List of filenames
     :type file_list: List[Union[Path, str], ...]
+    :param encoding: Codec to decode symbols in file
+    :type encoding: Optional[str]
+    :param errors: Flag defining the way to handle errors
+    :type errors: Optional[str]
     :return: Iterator for merged list
     :rtype: Iterator
     """
-    generators = [get_lines(filename, *args, **kwargs)
+    generators = [get_lines(filename, encoding, errors)
                   for filename in file_list]
     data_buffer = [next(gen) for gen in generators]
 
+    # Processing empty files
     wrong_indices = [ind for ind, elem in enumerate(data_buffer)
                      if elem == empty_object]
     for i, index in enumerate(wrong_indices):
@@ -74,6 +80,7 @@ def merge_sorted_files(file_list: 'List[Union[Path, str], ...]',
         generators.pop(index)
         data_buffer.pop(index)
 
+    # Generating values
     precessed_generators = 0
     while precessed_generators < len(generators):
 
@@ -85,11 +92,3 @@ def merge_sorted_files(file_list: 'List[Union[Path, str], ...]',
             precessed_generators += 1
 
         yield min_element
-
-
-if __name__ == '__main__':
-    dir_to_files = 'E://pyEPAM/homework9_texts'
-    filenames = os.listdir(dir_to_files)
-    paths = [os.path.join(dir_to_files, filename) for filename in filenames]
-
-    print(list(merge_sorted_files(paths)))
