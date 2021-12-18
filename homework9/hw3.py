@@ -30,6 +30,30 @@ def empty_tokenizer(line: str) -> List[str]:
     return [line]
 
 
+def generator_decorator(func: Callable) -> Callable:
+    """
+    Decorator to get result of generator work
+
+    :param func: Generator function
+    :type func: Callable
+    :return: Function with generator functionality
+             and converting its result to list
+    :rtype: Callable
+    """
+    def wrapper(line: str) -> List:
+        """
+        Wrapper function for getting generation result
+
+        :param line: String for generator input
+        :type line: str
+        :return: List with result of generator iterations
+        :rtype: List
+        """
+        result = func(line)
+        return list(result)
+    return wrapper
+
+
 def get_lines(file_path:  str,
               encoding: Optional[str] = 'utf-8',
               errors: Optional[str] = 'ignore',
@@ -53,17 +77,15 @@ def get_lines(file_path:  str,
 
     if not tokenizer:
         tokenizer = empty_tokenizer
+    elif isinstance(tokenizer('line'), collections.abc.Generator):
+        tokenizer = generator_decorator(tokenizer)
 
     with open(file_path, 'r', encoding=encoding, errors=errors) as fi:
         line = fi.readline()
         while line or '\n' in line:
             tokens = tokenizer(line)
 
-            if isinstance(tokens, collections.abc.Generator):
-                yield len(list(tokens))
-            else:
-                yield len(tokens)
-
+            yield len(tokens)
             line = fi.readline()
 
 
