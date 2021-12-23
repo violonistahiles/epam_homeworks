@@ -1,0 +1,4 @@
+PARSING_SITE = 'https://markets.businessinsider.com/index/components/s&p_500'
+PAGES_NUMBER = '<a href="?p=4">4</a>'
+PARSE_PAGE = 'https://markets.businessinsider.com/index/components/s&p_500?p={}'
+
