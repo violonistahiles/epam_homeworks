@@ -1,7 +1,9 @@
-PARSE_FIRST_PAGE = 'https://markets.businessinsider.com/index/components/s&p_500'
+FIRST_PAGE_LINK = 'https://markets.businessinsider.com/index/components/s&p_500'
 INITIAL_LINK = 'https://markets.businessinsider.com'
+BANK_LINK = 'http://www.cbr.ru/scripts/XML_daily.asp?date_req={}'
 
 # CSS FOR PARSING
 COMPANIES_TABLE = 'table__tbody'
 COMPANY = "^/stocks.*stock$"
+CURRENT_PRICE = '<span class="price-section__current-value">152.24</span>'
 
