@@ -132,10 +132,11 @@ class CompanyParser:
         :rtype: str
         """
         pattern_to_find = '"TKData" : "'
-        element = self.soup.find('div', class_='responsivePosition')
+        element = self.soup.find('div',
+                                 class_='responsivePosition').find('script')
         if not element:
             raise ElementNotFoundError
-        func_str = element.find('script').contents[0]
+        func_str = element.contents[0]
 
         tkdata_start = func_str.find(pattern_to_find)
         tkdata_end = func_str[tkdata_start+len(pattern_to_find):].find('"')
@@ -220,8 +221,8 @@ class CompanyParser:
         price = self._parse_current_value()
         code = self._parse_company_code()
         pe = self._parse_company_pe()
-        growth = self._parse_company_year_growth(data_link)
         profit = self._parse_company_profit()
+        growth = self._parse_company_year_growth(data_link)
 
         company_dict = {'name': name,
                         'code': code,
