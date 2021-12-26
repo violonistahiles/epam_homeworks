@@ -8,4 +8,8 @@ DATA_LINK = 'https://markets.businessinsider.com/Ajax/Chart_GetChartData?instrum
 COMPANIES_TABLE = 'table__tbody'
 COMPANY = "^/stocks.*stock$"
 CURRENT_PRICE = '<span class="price-section__current-value">152.24</span>'
+NAME = '<span class="price-section__label">3M Co.</span>'
 RESPONSE = '<div class="responsivePosition" id="DetailChart">'
+CODE = '<span class="price-section__category">Stock <span>, MMM</span></span>'
+PE = '<div class="snapshot__header">P/E Ratio</div>'
+PE_PARENT = '<div class="snapshot__data-item">19.91<div class="snapshot__header">P/E Ratio</div></div>'

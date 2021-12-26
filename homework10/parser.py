@@ -1,7 +1,7 @@
 import os
 import re
 from datetime import datetime, timedelta
-from typing import Dict, List
+from typing import Callable, List
 
 import toml
 from bs4 import BeautifulSoup
@@ -9,7 +9,29 @@ from bs4 import BeautifulSoup
 from homework10.connection import URLReader
 
 
-class CompaniesParser:
+class ElementNotFoundError(Exception):
+    """No such element on HTML"""
+
+
+def parsing_decorator(func: Callable) -> Callable:
+    """
+    Decorator to handling exceptions during parsing an element through html
+
+    :param func: Parsing function
+    :type func: Callable
+    :return: Decorated function
+    :rtype: Callable
+    """
+    def wrapper(*args):
+        try:
+            result = func(*args)
+        except ElementNotFoundError:
+            result = None
+        return result
+    return wrapper
+
+
+class TableParser:
     def __init__(self, site: str):
         """
         Create parser for getting information about S&P 500 stocks
@@ -21,26 +43,9 @@ class CompaniesParser:
         self.site = site
 
     @staticmethod
-    def _parse_company_code(company_href: str) -> str:
-        """
-        Get company code from company link
-        Link example:
-        '/stocks/aos-stock', where aos is company code
-
-        :param company_href: Company link
-        :type company_href: str
-        :return: Code of the company
-        :rtype: str
-        """
-        start_position = company_href.rfind('/') + 1
-        end_position = company_href.rfind('-')
-        company_code = company_href[start_position:end_position]
-        return company_code
-
-    @staticmethod
     def parse_pages_number(page: str) -> List:
         """
-        Parsing links for pages with companies lists
+        Parsing links for pages with companies tables
         Element to find example:
         '<a href="?p=4">4</a>', where ?p=4 is link
         for 4-th page with companies list
@@ -50,35 +55,20 @@ class CompaniesParser:
         """
         soup = BeautifulSoup(page, 'html.parser')
 
-        pages_list = set()
+        pages_number = 0
         for element in soup.find_all("a", href=re.compile(r"^\?p")):
             href_name = element.get('href')
-            pages_list.add(href_name)
-        # Subtract page number 1 from pages to visit list
-        pages_list = pages_list - set('?p=1')
+            page_number = int(re.findall(r'\d+', href_name)[0])
+            if pages_number < page_number:
+                pages_number = page_number
+        # Take remaining pages
+        pages_list = ['?p=' + str(digit) for digit in range(2, pages_number+1)]
 
         return list(pages_list)
 
-    def _parse_company(self, element: BeautifulSoup) -> Dict:
+    def parse_companies(self, page: str) -> List:
         """
-        Parse information about single company from table
-
-        :param element: HTML information of company element
-        :type element: BeautifulSoup
-        """
-        href_name = element.get('href')
-        company_link = self.site + href_name
-
-        company_name = element.get('title')
-        company_code = self._parse_company_code(href_name)
-        company_dict = {company_code.upper(): {'name': company_name,
-                                               'link': company_link}}
-
-        return company_dict
-
-    def parse_companies(self, page: str) -> Dict:
-        """
-        Parsing company information from companies list
+        Parsing company link from company html element
         Element to find example:
         <a href="/stocks/aos-stock" title="A.O. Smith">A.O. Smith</a>
 
@@ -86,25 +76,45 @@ class CompaniesParser:
         :type page: str
         """
         soup = BeautifulSoup(page, 'html.parser')
+        # Find table with companies
         table = soup.find("tbody", class_='table__tbody')
 
-        companies_dict = {}
+        # Process table line by line
+        companies_links = []
         for element in table.find_all("a",
                                       href=re.compile(r"^/stocks.*stock$")):
 
-            company_dict = self._parse_company(element)
-            companies_dict.update(company_dict)
+            company_link = element.get('href')
+            companies_links.append(self.site + company_link)
 
-        return companies_dict
+        return companies_links
 
 
 class CompanyParser:
-    def __init__(self, client):
+    def __init__(self, client: 'URLReader'):
+        """
+        Create class for parsing information from company page on site
+        'https://markets.businessinsider.com'
+
+        :param client: Client for processing web requests
+        :type client: URLReader
+        """
         self.soup = None
         self.client = client
 
     @staticmethod
     def _set_up_data_link(data_link, tkdata):
+        """
+        Function for filling url link with associated company data to get
+        time series statistics
+
+        :param data_link: URL link with missing parameters
+        :type data_link: str
+        :param tkdata: Company specific parameter for url request
+        :type tkdata: str
+        :return: Ready to use URL link
+        :rtype: str
+        """
         current = datetime.today()
         current_date = f'{current.year}{current.month}{current.day}'
         # Not consider leap year
@@ -115,8 +125,16 @@ class CompanyParser:
         return data_link
 
     def _parse_company_db_address(self):
+        """
+        Read from HTML code company address for getting time series statistics
+
+        :return: Company specific address for url request
+        :rtype: str
+        """
         pattern_to_find = '"TKData" : "'
         element = self.soup.find('div', class_='responsivePosition')
+        if not element:
+            raise ElementNotFoundError
         func_str = element.find('script').contents[0]
 
         tkdata_start = func_str.find(pattern_to_find)
@@ -126,58 +144,93 @@ class CompanyParser:
         tkdata = func_str[tkdata_start:tkdata_end]
         return tkdata
 
-    def _parse_child(self, string: str):
+    def _parse_parent(self, string: str):
+        """
+        Function to get data from parent HTML element
+
+        :param string: Text value of HTML element
+        :type string: str
+        :return: Text value of the parent HTML element
+        :rtype: str
+        """
         element = self.soup.find('div', string=string)
+        if not element:
+            raise ElementNotFoundError
         parent_element = element.parent
         result = parent_element.contents[0]
         result = result.strip('\r\n\t')
         return result
 
+    @parsing_decorator
+    def _parse_name(self):
+        element = self.soup.find('span', class_='price-section__label')
+        if not element:
+            raise ElementNotFoundError
+        name = element.contents[0]
+        name = name.strip('\r\n\t')
+        return name
+
+    @parsing_decorator
     def _parse_current_value(self):
         element = self.soup.find('span', class_='price-section__current-value')
+        if not element:
+            raise ElementNotFoundError
         price = element.contents[0]
         price = price.replace(',', '')
         return float(price)
 
+    @parsing_decorator
     def _parse_company_code(self):
         element = self.soup.find('span', class_='price-section__category')
+        if not element:
+            raise ElementNotFoundError
         company_code = element.find('span').contents[0]
         company_code = company_code.split()[1]
         return company_code
 
+    @parsing_decorator
     def _parse_company_pe(self):
-        company_pe = self._parse_child('P/E Ratio')
+        company_pe = self._parse_parent('P/E Ratio')
         return float(company_pe)
 
+    @parsing_decorator
     def _parse_company_year_growth(self, data_link):
         tkdata = self._parse_company_db_address()
-        # print(tkdata)
         url_link = self._set_up_data_link(data_link, tkdata)
-        # print(url_link)
         data = self.client.get_page(url_link)
+
         data_list = eval(data)
-        start_position = float(data_list[0]['Close'])
-        end_position = float(data_list[-1]['Close'])
+        start_value = float(data_list[0]['Close'])
+        end_value = float(data_list[-1]['Close'])
+        year_growth = (end_value - start_value) * 100 / start_value
+        return year_growth
 
-        return end_position - start_position
-
+    @parsing_decorator
     def _parse_company_profit(self):
-        low_price = self._parse_child('52 Week Low')
-        high_price = self._parse_child('52 Week High')
-        low_price = low_price.replace(',', '')
-        high_price = high_price.replace(',', '')
-        profit = float(high_price) - float(low_price)
-        return profit
+        low_price = self._parse_parent('52 Week Low')
+        high_price = self._parse_parent('52 Week High')
+        low_price = float(low_price.replace(',', ''))
+        high_price = float(high_price.replace(',', ''))
+        related_profit = (high_price - low_price) * 100 / low_price
+        return related_profit
 
-    def scalp_company(self, page, data_link):
+    def parse_company(self, page, data_link):
         self.soup = BeautifulSoup(page, 'html.parser')
+        name = self._parse_name()
         price = self._parse_current_value()
         code = self._parse_company_code()
         pe = self._parse_company_pe()
         growth = self._parse_company_year_growth(data_link)
         profit = self._parse_company_profit()
 
-        return [code, price, pe, growth, profit]
+        company_dict = {'name': name,
+                        'code': code,
+                        'price': price,
+                        'P/E': pe,
+                        'growth': growth,
+                        'profit': profit}
+
+        return company_dict
 
 
 if __name__ == '__main__':
@@ -189,7 +242,7 @@ if __name__ == '__main__':
         commands = toml.load(fi)
 
     client = URLReader()
-    parser = CompaniesParser(commands['INITIAL_LINK'])
+    parser = TableParser(commands['INITIAL_LINK'])
     url_data = client.read_url(commands['FIRST_PAGE_LINK'])
     url_str = client.decode_url(url_data)
     pages_list = parser.parse_pages_number(url_str)

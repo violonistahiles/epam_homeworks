@@ -7,7 +7,7 @@ from queue import Queue
 import toml
 
 from homework10.connection import URLReader
-from homework10.parser import CompaniesParser, CompanyParser
+from homework10.parser import CompanyParser, TableParser
 
 
 class Scalper:
@@ -15,12 +15,13 @@ class Scalper:
 
         self.info = info
         self.client = URLReader()
-        self.companies_parser = CompaniesParser(info['INITIAL_LINK'])
+        self.companies_parser = TableParser(info['INITIAL_LINK'])
         self.company_parser = CompanyParser(self.client)
         self.companies_links = Queue(500)
         self.pages_links = None
-        self.companies = dict()
+        self.companies = []
         self._scalp_usd_course()
+        self.attempts = 5
 
     def _scalp_usd_course(self):
         link = self.info['BANK_LINK']
@@ -36,48 +37,43 @@ class Scalper:
         first_page = self.client.get_page(self.info['FIRST_PAGE_LINK'])
 
         pages = self.companies_parser.parse_pages_number(first_page)
-        companies_dict = self.companies_parser.parse_companies(first_page)
-
         pages_links = [self.info['FIRST_PAGE_LINK'] + page for page in pages]
-        print(len(pages_links))
         self.pages_links = Queue(len(pages_links))
-        self.companies.update(companies_dict)
-
-        for company in companies_dict.keys():
-            self.companies_links.put(companies_dict[company]['link'])
-
         for page_link in pages_links:
             self.pages_links.put(page_link)
+
+        companies_links = self.companies_parser.parse_companies(first_page)
+        for company_link in companies_links:
+            self.companies_links.put(company_link)
 
     def _scalp_page(self):
         page_url = self.pages_links.get()
         page = self.client.get_page(page_url)
-        companies_dict = self.companies_parser.parse_companies(page)
-        self.companies.update(companies_dict)
+        companies_links = self.companies_parser.parse_companies(page)
 
-        for company in companies_dict.keys():
-            self.companies_links.put(companies_dict[company]['link'])
-
-        print(len(companies_dict))
+        for company_link in companies_links:
+            self.companies_links.put(company_link)
 
     def _scalp_company_page(self):
         page_url = self.companies_links.get()
         page = self.client.get_page(page_url)
-        data = self.company_parser.scalp_company(page, self.info['DATA_LINK'])
+        data = self.company_parser.parse_company(page, self.info['DATA_LINK'])
+        self.companies.append(data)
         print(data)
 
     def scalp(self):
         self._scalp_first_page()
-        time.sleep(2)
+        time.sleep(1)
 
         while not self.pages_links.empty() or not self.companies_links.empty():
             if not self.pages_links.empty():
                 self._scalp_page()
-                time.sleep(2)
+                time.sleep(1)
             if not self.companies_links.empty():
                 self._scalp_company_page()
-                time.sleep(2)
-            break
+                time.sleep(1)
+
+        return self.companies
 
 
 if __name__ == '__main__':
