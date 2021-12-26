@@ -16,7 +16,7 @@ class Scalper:
         self.info = info
         self.client = URLReader()
         self.companies_parser = CompaniesParser(info['INITIAL_LINK'])
-        self.company_parser = CompanyParser()
+        self.company_parser = CompanyParser(self.client)
         self.companies_links = Queue(500)
         self.pages_links = None
         self.companies = dict()
@@ -63,8 +63,8 @@ class Scalper:
     def _scalp_company_page(self):
         page_url = self.companies_links.get()
         page = self.client.get_page(page_url)
-        company_data = self.company_parser.scalp_company(page)
-        print(company_data)
+        data = self.company_parser.scalp_company(page, self.info['DATA_LINK'])
+        print(data)
 
     def scalp(self):
         self._scalp_first_page()

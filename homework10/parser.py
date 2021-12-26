@@ -1,5 +1,6 @@
 import os
 import re
+from datetime import datetime, timedelta
 from typing import Dict, List
 
 import toml
@@ -98,27 +99,85 @@ class CompaniesParser:
 
 
 class CompanyParser:
+    def __init__(self, client):
+        self.soup = None
+        self.client = client
 
     @staticmethod
-    def _parse_current_value(soup):
-        element = soup.find('span', class_='price-section__current-value')
+    def _set_up_data_link(data_link, tkdata):
+        current = datetime.today()
+        current_date = f'{current.year}{current.month}{current.day}'
+        # Not consider leap year
+        year_back = current - timedelta(days=365)
+        year_back_date = f'{year_back.year}{year_back.month}{year_back.day}'
+
+        data_link = data_link.format(tkdata, year_back_date, current_date)
+        return data_link
+
+    def _parse_company_db_address(self):
+        pattern_to_find = '"TKData" : "'
+        element = self.soup.find('div', class_='responsivePosition')
+        func_str = element.find('script').contents[0]
+
+        tkdata_start = func_str.find(pattern_to_find)
+        tkdata_end = func_str[tkdata_start+len(pattern_to_find):].find('"')
+        tkdata_start = tkdata_start + len(pattern_to_find)
+        tkdata_end = tkdata_start + tkdata_end
+        tkdata = func_str[tkdata_start:tkdata_end]
+        return tkdata
+
+    def _parse_child(self, string: str):
+        element = self.soup.find('div', string=string)
+        parent_element = element.parent
+        result = parent_element.contents[0]
+        result = result.strip('\r\n\t')
+        return result
+
+    def _parse_current_value(self):
+        element = self.soup.find('span', class_='price-section__current-value')
         price = element.contents[0]
+        price = price.replace(',', '')
+        return float(price)
 
-        return price
-
-    @staticmethod
-    def _parse_company_code(soup):
-        element = soup.find('span', class_='price-section__category')
+    def _parse_company_code(self):
+        element = self.soup.find('span', class_='price-section__category')
         company_code = element.find('span').contents[0]
         company_code = company_code.split()[1]
-
         return company_code
 
-    def scalp_company(self, page):
-        soup = BeautifulSoup(page, 'html.parser')
-        price = self._parse_current_value(soup)
-        company_code = self._parse_company_code(soup)
-        return [company_code, price]
+    def _parse_company_pe(self):
+        company_pe = self._parse_child('P/E Ratio')
+        return float(company_pe)
+
+    def _parse_company_year_growth(self, data_link):
+        tkdata = self._parse_company_db_address()
+        # print(tkdata)
+        url_link = self._set_up_data_link(data_link, tkdata)
+        # print(url_link)
+        data = self.client.get_page(url_link)
+        data_list = eval(data)
+        start_position = float(data_list[0]['Close'])
+        end_position = float(data_list[-1]['Close'])
+
+        return end_position - start_position
+
+    def _parse_company_profit(self):
+        low_price = self._parse_child('52 Week Low')
+        high_price = self._parse_child('52 Week High')
+        low_price = low_price.replace(',', '')
+        high_price = high_price.replace(',', '')
+        profit = float(high_price) - float(low_price)
+        return profit
+
+    def scalp_company(self, page, data_link):
+        self.soup = BeautifulSoup(page, 'html.parser')
+        price = self._parse_current_value()
+        code = self._parse_company_code()
+        pe = self._parse_company_pe()
+        growth = self._parse_company_year_growth(data_link)
+        profit = self._parse_company_profit()
+
+        return [code, price, pe, growth, profit]
 
 
 if __name__ == '__main__':
