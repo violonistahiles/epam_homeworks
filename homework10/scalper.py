@@ -18,7 +18,7 @@ class Scalper:
         self.company_parser = CompanyParser(self.client)
         self.companies_links = []
         self.pages_links = []
-        self.companies = []
+        self.companies = {}
 
     async def scalp_usd_course(self):
         link = self.info['BANK_LINK']
@@ -42,7 +42,7 @@ class Scalper:
         new_companies_links = self.companies_parser.parse_companies(first_page)
         self.companies_links.extend(new_companies_links)
 
-    async def _scalp_page(self, link):
+    async def _scalp_table(self, link):
         page = await self.client.get_page(link)
         new_companies_links = self.companies_parser.parse_companies(page)
         self.companies_links.extend(new_companies_links)
@@ -50,13 +50,21 @@ class Scalper:
     async def _scalp_company_page(self, link):
         page = await self.client.get_page(link)
         data = self.company_parser.parse_company(page, self.info['DATA_LINK'])
-        self.companies.append(data)
-        print(data)
+        self.companies.update({data['code']: data})
+
+    async def _scalp_company_growth(self, data):
+        if data['link']:
+            page = await self.client.get_page(data['link'])
+            growth = self.company_parser.parse_company_year_growth(page)
+        else:
+            growth = None
+        self.companies[data['code']].update({'growth': growth})
+        self.companies[data['code']].pop('link')
 
     async def scalp(self):
         await self._scalp_first_page()
 
-        tasks = [asyncio.create_task(self._scalp_page(url)) for url
+        tasks = [asyncio.create_task(self._scalp_table(url)) for url
                  in self.pages_links]
         await asyncio.gather(*tasks)
 
@@ -64,7 +72,11 @@ class Scalper:
                  in self.companies_links]
         await asyncio.gather(*tasks)
 
-        return self.companies
+        tasks = [asyncio.create_task(self._scalp_company_growth(data)) for data
+                 in self.companies.values()]
+        await asyncio.gather(*tasks)
+
+        return self.companies.values()
 
 
 if __name__ == '__main__':

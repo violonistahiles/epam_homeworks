@@ -37,7 +37,7 @@ class Worker:
         return data
 
     async def _get_companies_info(self):
-        number_of_threads = 10
+        number_of_threads = 15
         sem = asyncio.Semaphore(number_of_threads)
         async with sem:
             self.dollar_course = await self._scalper.scalp_usd_course()

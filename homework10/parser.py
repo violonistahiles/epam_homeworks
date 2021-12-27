@@ -1,9 +1,7 @@
-import os
 import re
 from datetime import datetime, timedelta
 from typing import Callable, List
 
-import toml
 from bs4 import BeautifulSoup
 
 from homework10.connection import URLReader
@@ -132,14 +130,10 @@ class CompanyParser:
         :rtype: str
         """
         pattern_to_find = '"TKData" : "'
-        # element = self.soup.find('div',
-        #                          class_='responsivePosition').find('script')
         element = self.soup.find('script',
                                  string=re.compile('.*detailChartViewmodel.*'))
-        # print(element)
         if not element:
             raise ElementNotFoundError
-        # print(element)
         func_str = element.contents[0]
 
         tkdata_start = func_str.find(pattern_to_find)
@@ -200,16 +194,10 @@ class CompanyParser:
         return float(company_pe)
 
     @parsing_decorator
-    def _parse_company_year_growth(self, data_link):
+    def _get_link_to_statistics(self, data_link):
         tkdata = self._parse_company_db_address()
         url_link = self._set_up_data_link(data_link, tkdata)
-        data = self.client.get_page_sinc(url_link)
-
-        data_list = eval(data)
-        start_value = float(data_list[0]['Close'])
-        end_value = float(data_list[-1]['Close'])
-        year_growth = (end_value - start_value) * 100 / start_value
-        return year_growth
+        return url_link
 
     @parsing_decorator
     def _parse_company_profit(self):
@@ -220,6 +208,14 @@ class CompanyParser:
         related_profit = (high_price - low_price) * 100 / low_price
         return related_profit
 
+    @staticmethod
+    def parse_company_year_growth(data):
+        data_list = eval(data)
+        start_value = float(data_list[0]['Close'])
+        end_value = float(data_list[-1]['Close'])
+        year_growth = (end_value - start_value) * 100 / start_value
+        return year_growth
+
     def parse_company(self, page, data_link):
         self.soup = BeautifulSoup(page, 'html.parser')
         name = self._parse_name()
@@ -227,34 +223,13 @@ class CompanyParser:
         code = self._parse_company_code()
         pe = self._parse_company_pe()
         profit = self._parse_company_profit()
-        # await asyncio.sleep(0.1)  # wait for loading graphic
-        growth = self._parse_company_year_growth(data_link)
+        growth_link = self._get_link_to_statistics(data_link)
 
         company_dict = {'name': name,
                         'code': code,
                         'price': price,
                         'P/E': pe,
-                        'growth': growth,
+                        'link': growth_link,
                         'profit': profit}
 
         return company_dict
-
-
-if __name__ == '__main__':
-
-    current_path = os.path.abspath(os.getcwd())
-    current_path = os.path.join(current_path, 'homework10')
-    commands_file = os.path.join(current_path, 'links.toml')
-    with open(commands_file, 'r') as fi:
-        commands = toml.load(fi)
-
-    client = URLReader()
-    parser = TableParser(commands['INITIAL_LINK'])
-    url_data = client.read_url(commands['FIRST_PAGE_LINK'])
-    url_str = client.decode_url(url_data)
-    pages_list = parser.parse_pages_number(url_str)
-    print(pages_list)
-
-    companies_dict = parser.parse_companies(url_str)
-    for company in companies_dict.keys():
-        print(companies_dict[company])
