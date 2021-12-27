@@ -132,10 +132,14 @@ class CompanyParser:
         :rtype: str
         """
         pattern_to_find = '"TKData" : "'
-        element = self.soup.find('div',
-                                 class_='responsivePosition').find('script')
+        # element = self.soup.find('div',
+        #                          class_='responsivePosition').find('script')
+        element = self.soup.find('script',
+                                 string=re.compile('.*detailChartViewmodel.*'))
+        # print(element)
         if not element:
             raise ElementNotFoundError
+        # print(element)
         func_str = element.contents[0]
 
         tkdata_start = func_str.find(pattern_to_find)
@@ -192,13 +196,14 @@ class CompanyParser:
     @parsing_decorator
     def _parse_company_pe(self):
         company_pe = self._parse_parent('P/E Ratio')
+        company_pe = company_pe.replace(',', '')
         return float(company_pe)
 
     @parsing_decorator
     def _parse_company_year_growth(self, data_link):
         tkdata = self._parse_company_db_address()
         url_link = self._set_up_data_link(data_link, tkdata)
-        data = self.client.get_page(url_link)
+        data = self.client.get_page_sinc(url_link)
 
         data_list = eval(data)
         start_value = float(data_list[0]['Close'])
@@ -222,6 +227,7 @@ class CompanyParser:
         code = self._parse_company_code()
         pe = self._parse_company_pe()
         profit = self._parse_company_profit()
+        # await asyncio.sleep(0.1)  # wait for loading graphic
         growth = self._parse_company_year_growth(data_link)
 
         company_dict = {'name': name,

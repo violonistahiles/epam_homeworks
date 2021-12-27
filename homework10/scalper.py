@@ -1,8 +1,7 @@
+import asyncio
 import os
-import time
-import xml.etree.ElementTree as ET
 from datetime import datetime
-from queue import Queue
+from xml.etree import ElementTree
 
 import toml
 
@@ -17,61 +16,53 @@ class Scalper:
         self.client = URLReader()
         self.companies_parser = TableParser(info['INITIAL_LINK'])
         self.company_parser = CompanyParser(self.client)
-        self.companies_links = Queue(500)
-        self.pages_links = None
+        self.companies_links = []
+        self.pages_links = []
         self.companies = []
-        self._scalp_usd_course()
-        self.attempts = 5
 
-    def _scalp_usd_course(self):
+    async def scalp_usd_course(self):
         link = self.info['BANK_LINK']
         date = datetime.today()
         link = link.format(f'{date.day}/{date.month}/{date.year}')
 
-        page = self.client.get_page(link, encoding='ISO-8859-2')
-        root = ET.fromstring(page)
+        page = await self.client.get_page(link, encoding='ISO-8859-2')
+        root = ElementTree.fromstring(page)
         dollar_course_str = root.findall(".//*[@ID='R01235']/Value")[0].text
-        self.dollar_course = float(dollar_course_str.replace(',', '.'))
+        dollar_course = float(dollar_course_str.replace(',', '.'))
 
-    def _scalp_first_page(self):
-        first_page = self.client.get_page(self.info['FIRST_PAGE_LINK'])
+        return dollar_course
 
-        pages = self.companies_parser.parse_pages_number(first_page)
-        pages_links = [self.info['FIRST_PAGE_LINK'] + page for page in pages]
-        self.pages_links = Queue(len(pages_links))
-        for page_link in pages_links:
-            self.pages_links.put(page_link)
+    async def _scalp_first_page(self):
+        first_page = await self.client.get_page(self.info['FIRST_PAGE_LINK'])
 
-        companies_links = self.companies_parser.parse_companies(first_page)
-        for company_link in companies_links:
-            self.companies_links.put(company_link)
+        pages_number = self.companies_parser.parse_pages_number(first_page)
+        self.pages_links = [self.info['FIRST_PAGE_LINK'] + page for page
+                            in pages_number]
 
-    def _scalp_page(self):
-        page_url = self.pages_links.get()
-        page = self.client.get_page(page_url)
-        companies_links = self.companies_parser.parse_companies(page)
+        new_companies_links = self.companies_parser.parse_companies(first_page)
+        self.companies_links.extend(new_companies_links)
 
-        for company_link in companies_links:
-            self.companies_links.put(company_link)
+    async def _scalp_page(self, link):
+        page = await self.client.get_page(link)
+        new_companies_links = self.companies_parser.parse_companies(page)
+        self.companies_links.extend(new_companies_links)
 
-    def _scalp_company_page(self):
-        page_url = self.companies_links.get()
-        page = self.client.get_page(page_url)
+    async def _scalp_company_page(self, link):
+        page = await self.client.get_page(link)
         data = self.company_parser.parse_company(page, self.info['DATA_LINK'])
         self.companies.append(data)
         print(data)
 
-    def scalp(self):
-        self._scalp_first_page()
-        time.sleep(1)
+    async def scalp(self):
+        await self._scalp_first_page()
 
-        while not self.pages_links.empty() or not self.companies_links.empty():
-            if not self.pages_links.empty():
-                self._scalp_page()
-                time.sleep(1)
-            if not self.companies_links.empty():
-                self._scalp_company_page()
-                time.sleep(1)
+        tasks = [asyncio.create_task(self._scalp_page(url)) for url
+                 in self.pages_links]
+        await asyncio.gather(*tasks)
+
+        tasks = [asyncio.create_task(self._scalp_company_page(url)) for url
+                 in self.companies_links]
+        await asyncio.gather(*tasks)
 
         return self.companies
 

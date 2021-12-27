@@ -3,7 +3,6 @@ INITIAL_LINK = 'https://markets.businessinsider.com'
 BANK_LINK = 'http://www.cbr.ru/scripts/XML_daily.asp?date_req={}'
 DATA_LINK = 'https://markets.businessinsider.com/Ajax/Chart_GetChartData?instrumentType=Share&tkData={}&from={}&to={}'
 
-
 # CSS FOR PARSING
 COMPANIES_TABLE = 'table__tbody'
 COMPANY = "^/stocks.*stock$"

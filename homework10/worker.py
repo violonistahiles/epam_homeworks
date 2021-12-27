@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 
@@ -18,15 +19,15 @@ class Worker:
         with open(info_file, 'r') as fi:
             info = toml.load(fi)
 
-        self.scalper = Scalper(info)
-        self.number_of_elements = 10
+        self._scalper = Scalper(info)
+        self._number_of_elements = 10
 
     def _filter_elements(self, key, coef=1, reverse=False):
         elements = [item for item in self.companies_list if item[key]]
         elements = sorted(elements, key=lambda x: x[key], reverse=reverse)
 
         data = []
-        for i in range(self.number_of_elements):
+        for i in range(self._number_of_elements):
             tmp_dict = elements[i]
             new_dict = {'name': tmp_dict['name'],
                         'code': tmp_dict['code'],
@@ -35,13 +36,17 @@ class Worker:
 
         return data
 
-    def _get_companies_info(self):
-        self.companies_list = self.scalper.scalp()
-        print(len(self.companies_list))
+    async def _get_companies_info(self):
+        number_of_threads = 10
+        sem = asyncio.Semaphore(number_of_threads)
+        async with sem:
+            self.dollar_course = await self._scalper.scalp_usd_course()
+            self.companies_list = await self._scalper.scalp()
+        await self._scalper.client.session.close()
 
     def _get_most_expensive(self):
         data = self._filter_elements('price',
-                                     self.scalper.dollar_course,
+                                     self.dollar_course,
                                      reverse=True)
         with open(self.file_names['price'], 'w') as fi:
             json.dump(data, fi)
@@ -61,8 +66,9 @@ class Worker:
         with open(self.file_names['profit'], 'w') as fi:
             json.dump(data, fi)
 
-    def save_result(self):
-        self._get_companies_info()
+    def get_result(self):
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(self._get_companies_info())
         self._get_most_expensive()
         self._get_worst_pe()
         self._get_best_growth()
@@ -71,4 +77,4 @@ class Worker:
 
 if __name__ == '__main__':
     worker = Worker()
-    worker.save_result()
+    worker.get_result()
