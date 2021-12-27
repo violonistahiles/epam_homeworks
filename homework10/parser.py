@@ -1,10 +1,8 @@
 import re
 from datetime import datetime, timedelta
-from typing import Callable, List
+from typing import Callable, Dict, List
 
 from bs4 import BeautifulSoup
-
-from homework10.connection import URLReader
 
 
 class ElementNotFoundError(Exception):
@@ -89,19 +87,15 @@ class TableParser:
 
 
 class CompanyParser:
-    def __init__(self, client: 'URLReader'):
+    def __init__(self):
         """
         Create class for parsing information from company page on site
         'https://markets.businessinsider.com'
-
-        :param client: Client for processing web requests
-        :type client: URLReader
         """
-        self.soup = None
-        self.client = client
+        self._soup = None
 
     @staticmethod
-    def _set_up_data_link(data_link, tkdata):
+    def _set_up_data_link(data_link: str, tkdata: str) -> str:
         """
         Function for filling url link with associated company data to get
         time series statistics
@@ -122,7 +116,7 @@ class CompanyParser:
         data_link = data_link.format(tkdata, year_back_date, current_date)
         return data_link
 
-    def _parse_company_db_address(self):
+    def _parse_company_db_address(self) -> str:
         """
         Read from HTML code company address for getting time series statistics
 
@@ -130,8 +124,8 @@ class CompanyParser:
         :rtype: str
         """
         pattern_to_find = '"TKData" : "'
-        element = self.soup.find('script',
-                                 string=re.compile('.*detailChartViewmodel.*'))
+        element = self._soup.find('script',
+                                  string=re.compile('.*ChartViewmodel.*'))
         if not element:
             raise ElementNotFoundError
         func_str = element.contents[0]
@@ -143,7 +137,7 @@ class CompanyParser:
         tkdata = func_str[tkdata_start:tkdata_end]
         return tkdata
 
-    def _parse_parent(self, string: str):
+    def _parse_parent(self, string: str) -> str:
         """
         Function to get data from parent HTML element
 
@@ -152,7 +146,7 @@ class CompanyParser:
         :return: Text value of the parent HTML element
         :rtype: str
         """
-        element = self.soup.find('div', string=string)
+        element = self._soup.find('div', string=string)
         if not element:
             raise ElementNotFoundError
         parent_element = element.parent
@@ -161,8 +155,14 @@ class CompanyParser:
         return result
 
     @parsing_decorator
-    def _parse_name(self):
-        element = self.soup.find('span', class_='price-section__label')
+    def _parse_name(self) -> str:
+        """
+        Parse company name from HTML
+
+        :return: Company name
+        :rtype: str
+        """
+        element = self._soup.find('span', class_='price-section__label')
         if not element:
             raise ElementNotFoundError
         name = element.contents[0]
@@ -170,8 +170,15 @@ class CompanyParser:
         return name
 
     @parsing_decorator
-    def _parse_current_value(self):
-        element = self.soup.find('span', class_='price-section__current-value')
+    def _parse_current_value(self) -> float:
+        """
+        Parse current company share
+
+        :return: Company share price in USD
+        :rtype: float
+        """
+        element = self._soup.find('span',
+                                  class_='price-section__current-value')
         if not element:
             raise ElementNotFoundError
         price = element.contents[0]
@@ -179,8 +186,14 @@ class CompanyParser:
         return float(price)
 
     @parsing_decorator
-    def _parse_company_code(self):
-        element = self.soup.find('span', class_='price-section__category')
+    def _parse_company_code(self) -> str:
+        """
+        Parse company abbreviation on the web site
+
+        :return: Company abbreviation on the web site
+        :rtype: str
+        """
+        element = self._soup.find('span', class_='price-section__category')
         if not element:
             raise ElementNotFoundError
         company_code = element.find('span').contents[0]
@@ -188,19 +201,40 @@ class CompanyParser:
         return company_code
 
     @parsing_decorator
-    def _parse_company_pe(self):
+    def _parse_company_pe(self) -> float:
+        """
+        Parse company P/E ratio
+
+        :return: Company P/E ratio
+        :rtype: float
+        """
         company_pe = self._parse_parent('P/E Ratio')
         company_pe = company_pe.replace(',', '')
         return float(company_pe)
 
     @parsing_decorator
-    def _get_link_to_statistics(self, data_link):
+    def _get_link_to_statistics(self, data_link: str) -> str:
+        """
+        Prepare URL link for year statistic request
+
+        :param data_link: Pattern for URL link
+        :type data_link: str
+        :return: URL link with data associated to current company
+        :rtype: str
+        """
         tkdata = self._parse_company_db_address()
         url_link = self._set_up_data_link(data_link, tkdata)
         return url_link
 
     @parsing_decorator
-    def _parse_company_profit(self):
+    def _parse_company_profit(self) -> float:
+        """
+        Parse and calculate potential profit of buying company shares
+        from 52 weeks low to 52 weeks high period
+
+        :return: Profit related to start price in percentages
+        :rtype: float
+        """
         low_price = self._parse_parent('52 Week Low')
         high_price = self._parse_parent('52 Week High')
         low_price = float(low_price.replace(',', ''))
@@ -209,15 +243,33 @@ class CompanyParser:
         return related_profit
 
     @staticmethod
-    def parse_company_year_growth(data):
+    def parse_company_year_growth(data: str) -> float:
+        """
+        Parse company year growth from statistics data
+
+        :param data: String with raw data containing days statistics
+        :type data: str
+        :return: Growth related to the price from 365 days back
+        :rtype: float
+        """
         data_list = eval(data)
         start_value = float(data_list[0]['Close'])
         end_value = float(data_list[-1]['Close'])
         year_growth = (end_value - start_value) * 100 / start_value
         return year_growth
 
-    def parse_company(self, page, data_link):
-        self.soup = BeautifulSoup(page, 'html.parser')
+    def parse_company(self, page: str, data_link: str) -> Dict:
+        """
+        Collect all necessary data about company from HTML page
+
+        :param page: HTML page
+        :param page: str
+        :param data_link: URL link pattern for collecting year statistic
+        :type data_link: str
+        :return: Collected data
+        :rtype: dict
+        """
+        self._soup = BeautifulSoup(page, 'html.parser')
         name = self._parse_name()
         price = self._parse_current_value()
         code = self._parse_company_code()
