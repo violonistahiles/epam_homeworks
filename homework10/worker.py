@@ -14,7 +14,7 @@ class Worker:
         Create class for collecting and filtering data about companies
         """
         current_path = os.path.abspath(os.getcwd())
-        # current_path = os.path.join(current_path, 'homework10')
+        current_path = os.path.join(current_path, 'homework10')
         info_file = os.path.join(current_path, 'links.toml')
         with open(info_file, 'r') as fi:
             info = toml.load(fi)

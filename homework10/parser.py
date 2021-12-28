@@ -1,5 +1,5 @@
+import datetime
 import re
-from datetime import datetime, timedelta
 from typing import Callable, Dict, List
 
 from bs4 import BeautifulSoup
@@ -28,15 +28,10 @@ def parsing_decorator(func: Callable) -> Callable:
 
 
 class TableParser:
-    def __init__(self, site: str):
-        """
-        Create parser for getting information about S&P 500 stocks
-        from the site 'https://markets.businessinsider.com'
-
-        :param site: Link to the initial site page
-        :type site: str
-        """
-        self.site = site
+    """
+    Create parser for getting information about S&P 500 stocks
+    from the site 'https://markets.businessinsider.com'
+    """
 
     @staticmethod
     def parse_pages_number(page: str) -> List:
@@ -60,9 +55,10 @@ class TableParser:
         # Take remaining pages
         pages_list = ['?p=' + str(digit) for digit in range(2, pages_number+1)]
 
-        return list(pages_list)
+        return pages_list
 
-    def parse_companies(self, page: str) -> List:
+    @staticmethod
+    def parse_companies(page: str, site: str) -> List:
         """
         Parsing company link from company html element
         Element to find example:
@@ -70,6 +66,8 @@ class TableParser:
 
         :param page: String representation of html page
         :type page: str
+        :param site: Link to the initial site page
+        :type site: str
         """
         soup = BeautifulSoup(page, 'html.parser')
         # Find table with companies
@@ -81,7 +79,7 @@ class TableParser:
                                       href=re.compile(r"^/stocks.*stock$")):
 
             company_link = element.get('href')
-            companies_links.append(self.site + company_link)
+            companies_links.append(site + company_link)
 
         return companies_links
 
@@ -107,10 +105,10 @@ class CompanyParser:
         :return: Ready to use URL link
         :rtype: str
         """
-        current = datetime.today()
+        current = datetime.datetime.today()
         current_date = f'{current.year}{current.month}{current.day}'
         # Not consider leap year
-        year_back = current - timedelta(days=365)
+        year_back = current - datetime.timedelta(days=365)
         year_back_date = f'{year_back.year}{year_back.month}{year_back.day}'
 
         data_link = data_link.format(tkdata, year_back_date, current_date)
@@ -252,9 +250,16 @@ class CompanyParser:
         :return: Growth related to the price from 365 days back
         :rtype: float
         """
-        data_list = eval(data)
-        start_value = float(data_list[0]['Close'])
-        end_value = float(data_list[-1]['Close'])
+        start_l = data.find('{')
+        end_l = data.find('}')
+        start_r = data.rfind('{')
+        end_r = data.rfind('}')
+
+        data_st = data[start_l:end_l]
+        data_end = data[start_r:end_r]
+
+        start_value = float(data_st[data_st.find(':')+1: data_st.find(',')])
+        end_value = float(data_end[data_end.find(':')+1: data_end.find(',')])
         year_growth = (end_value - start_value) * 100 / start_value
         return year_growth
 

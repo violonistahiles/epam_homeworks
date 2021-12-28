@@ -17,7 +17,7 @@ class Scalper:
         """
         self.info = info
         self.client = URLReader()
-        self.companies_parser = TableParser(info['INITIAL_LINK'])
+        self.companies_parser = TableParser()
         self.company_parser = CompanyParser()
         self.companies_links = []
         self.pages_links = []
@@ -49,8 +49,9 @@ class Scalper:
         self.pages_links = [self.info['FIRST_PAGE_LINK'] + page for page
                             in pages_number]
 
-        new_companies_links = self.companies_parser.parse_companies(first_page)
-        self.companies_links.extend(new_companies_links)
+        links = self.companies_parser.parse_companies(first_page,
+                                                      self.info['SITE_LINK'])
+        self.companies_links.extend(links)
 
     async def _scalp_table(self, link: str):
         """
@@ -60,8 +61,9 @@ class Scalper:
         :type link: str
         """
         page = await self.client.get_page(link)
-        new_companies_links = self.companies_parser.parse_companies(page)
-        self.companies_links.extend(new_companies_links)
+        links = self.companies_parser.parse_companies(page,
+                                                      self.info['SITE_LINK'])
+        self.companies_links.extend(links)
 
     async def _scalp_company_page(self, link: str):
         """
