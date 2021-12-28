@@ -6,12 +6,24 @@ import aiohttp
 class URLReader:
     """Perform operations with network requests"""
     def __init__(self):
+        """
+        Create service class for URL requests
+        """
         self.session = aiohttp.ClientSession()
-        self.attempts = 3
+        self._attempts = 3  # Number of attempts to repeat request
 
-    async def get_page(self, url, encoding: str = 'utf-8'):
+    async def get_page(self, url: str, encoding: str = 'utf-8') -> str:
+        """
+        Create GET request to the URL
 
-        for i in range(self.attempts):
+        :param url: URL
+        :type url: str
+        :param encoding: Codec to encode received data
+        :type encoding: str
+        :return: HTML in string format from requested URL
+        :rtype: str
+        """
+        for i in range(self._attempts):
             async with self.session.get(url) as response:
                 if response.status != 200:
                     time.sleep(1)
