@@ -39,7 +39,7 @@ class TableParser:
         Parsing links for pages with _companies tables
         Element to find example:
         '<a href="?p=4">4</a>', where ?p=4 is link
-        for 4-th page with _companies list
+        for 4-th page with companies list
 
         :param page: String representation of html page
         :type page: str

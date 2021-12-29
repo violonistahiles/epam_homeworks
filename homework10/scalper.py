@@ -55,7 +55,7 @@ class Scalper:
 
     async def _scalp_table(self, link: str):
         """
-        Get list of _companies links from summary table
+        Get list of companies links from summary table
 
         :param link: URL link to page with company summary
         :type link: str
@@ -96,7 +96,7 @@ class Scalper:
         """
         Parse _companies data in async way
 
-        :return: List of data containing _companies information
+        :return: List of data containing companies information
         :rtype: List[Dict]
         """
         await self._scalp_first_page()

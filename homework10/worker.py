@@ -11,9 +11,9 @@ from homework10.scalper import Scalper
 class Worker:
     def __init__(self, number_of_elements: int):
         """
-        Create class for collecting and filtering data about _companies
+        Create class for collecting and filtering data about companies
 
-        :param number_of_elements: Number of _companies which information save
+        :param number_of_elements: Number of companies which information save
                                    to results
         :type number_of_elements: int
         """
@@ -73,7 +73,7 @@ class Worker:
         await self._scalper.client.session.close()
 
     def _get_most_expensive(self):
-        """Save information about _companies price"""
+        """Save information about companies price"""
         data = self._sort_elements('price',
                                    self._usd_course,
                                    reverse=True)
@@ -87,19 +87,19 @@ class Worker:
             json.dump(data, fi)
 
     def _get_best_growth(self):
-        """Save information about _companies year growth"""
+        """Save information about companies year growth"""
         data = self._sort_elements('growth', reverse=True)
         with open(self._files['growth'], 'w') as fi:
             json.dump(data, fi)
 
     def _get_most_profitable(self):
-        """Save information about most potentially profitable _companies"""
+        """Save information about most potentially profitable companies"""
         data = self._sort_elements('profit', reverse=True)
         with open(self._files['profit'], 'w') as fi:
             json.dump(data, fi)
 
     def get_result(self):
-        """Collect _companies data and save it to the files"""
+        """Collect companies data and save it to the files"""
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self._get_companies_info())
         self._get_most_expensive()
