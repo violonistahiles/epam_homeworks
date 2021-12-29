@@ -36,10 +36,10 @@ class TableParser:
     @staticmethod
     def parse_pages_number(page: str) -> List:
         """
-        Parsing links for pages with companies tables
+        Parsing links for pages with _companies tables
         Element to find example:
         '<a href="?p=4">4</a>', where ?p=4 is link
-        for 4-th page with companies list
+        for 4-th page with _companies list
 
         :param page: String representation of html page
         :type page: str
@@ -70,7 +70,7 @@ class TableParser:
         :type site: str
         """
         soup = BeautifulSoup(page, 'html.parser')
-        # Find table with companies
+        # Find table with _companies
         table = soup.find("tbody", class_='table__tbody')
 
         # Process table line by line

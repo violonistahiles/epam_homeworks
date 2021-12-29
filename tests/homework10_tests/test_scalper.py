@@ -55,14 +55,14 @@ async def test_scalp_first_page(mock_reader, mock_table):
                  'SITE_LINK': 'site'}
     scalper = Scalper(fake_info)
     scalper.client = fake_client
-    scalper.table_parser = mock_table
+    scalper._table_parser = mock_table
     correct_pages_links = ['page1', 'page2']
     correct_companies_links = ['link1', 'link2']
 
     _ = await scalper._scalp_first_page()
 
-    assert scalper.pages_links == correct_pages_links
-    assert scalper.companies_links == correct_companies_links
+    assert scalper._pages_links == correct_pages_links
+    assert scalper._companies_links == correct_companies_links
 
 
 @pytest.mark.asyncio
@@ -77,12 +77,12 @@ async def test_scalp_table(mock_reader, mock_table):
     fake_info = {'SITE_LINK': 'site'}
     scalper = Scalper(fake_info)
     scalper.client = fake_client
-    scalper.table_parser = mock_table
+    scalper._table_parser = mock_table
     correct_companies_links = ['link1', 'link2']
 
     _ = await scalper._scalp_table(fake_link)
 
-    assert scalper.companies_links == correct_companies_links
+    assert scalper._companies_links == correct_companies_links
 
 
 @pytest.mark.asyncio
@@ -97,12 +97,12 @@ async def test_scalp_company_page(mock_reader, mock_company):
     fake_info = {'DATA_LINK': 'link'}
     scalper = Scalper(fake_info)
     scalper.client = fake_client
-    scalper.company_parser = mock_company
+    scalper._company_parser = mock_company
     correct_companies = {'test_code': {'code': 'test_code'}}
 
     _ = await scalper._scalp_company_page(fake_link)
 
-    assert scalper.companies == correct_companies
+    assert scalper._companies == correct_companies
 
 
 @pytest.mark.asyncio
@@ -118,13 +118,13 @@ async def test_scalp_company_growth_with_link(mock_reader, mock_company):
     fake_info = {'fake_key': 'fake_value'}
     scalper = Scalper(fake_info)
     scalper.client = fake_client
-    scalper.company_parser = mock_company
-    scalper.companies = start_dict
+    scalper._company_parser = mock_company
+    scalper._companies = start_dict
     correct_companies = {'test_code': {'code': 'test_code', 'growth': 5.3}}
 
     _ = await scalper._scalp_company_growth(test_data)
 
-    assert scalper.companies == correct_companies
+    assert scalper._companies == correct_companies
 
 
 @pytest.mark.asyncio
@@ -139,10 +139,10 @@ async def test_scalp_company_growth_without_link(mock_reader, mock_company):
     fake_info = {'fake_key': 'fake_value'}
     scalper = Scalper(fake_info)
     scalper.client = fake_client
-    scalper.company_parser = mock_company
-    scalper.companies = start_dict
+    scalper._company_parser = mock_company
+    scalper._companies = start_dict
     correct_companies = {'test_code': {'code': 'test_code', 'growth': None}}
 
     _ = await scalper._scalp_company_growth(test_data)
 
-    assert scalper.companies == correct_companies
+    assert scalper._companies == correct_companies

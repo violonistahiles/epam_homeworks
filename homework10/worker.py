@@ -9,9 +9,13 @@ from homework10.scalper import Scalper
 
 
 class Worker:
-    def __init__(self):
+    def __init__(self, number_of_elements: int):
         """
-        Create class for collecting and filtering data about companies
+        Create class for collecting and filtering data about _companies
+
+        :param number_of_elements: Number of _companies which information save
+                                   to results
+        :type number_of_elements: int
         """
         current_path = os.path.abspath(os.getcwd())
         current_path = os.path.join(current_path, 'homework10')
@@ -19,13 +23,15 @@ class Worker:
         with open(info_file, 'r') as fi:
             info = toml.load(fi)
         # Filenames to save data
-        self.file_names = {'price': os.path.join(current_path, 'price.json'),
-                           'pe': os.path.join(current_path, 'pe.json'),
-                           'growth': os.path.join(current_path, 'growth.json'),
-                           'profit': os.path.join(current_path, 'profit.json')}
+        self._files = {'price': os.path.join(current_path, 'price.json'),
+                       'pe': os.path.join(current_path, 'pe.json'),
+                       'growth': os.path.join(current_path, 'growth.json'),
+                       'profit': os.path.join(current_path, 'profit.json')}
 
         self._scalper = Scalper(info)
-        self._number_of_elements = 10  # Limit of companies to write in file
+        self._companies_list = None
+        self._usd_course = None
+        self._number_of_elements = number_of_elements
 
     def _sort_elements(self,
                        key: str,
@@ -44,7 +50,7 @@ class Worker:
                  parameter
         :rtype: List
         """
-        elements = [item for item in self.companies_list if item[key]]
+        elements = [item for item in self._companies_list if item[key]]
         elements = sorted(elements, key=lambda x: x[key], reverse=reverse)
 
         data = []
@@ -58,42 +64,42 @@ class Worker:
         return data
 
     async def _get_companies_info(self):
-        """Collect companies data from web"""
+        """Collect _companies data from web"""
         number_of_threads = 15
         sem = asyncio.Semaphore(number_of_threads)
         async with sem:
-            self.usd_course = await self._scalper.scalp_usd_course()
-            self.companies_list = await self._scalper.scalp()
+            self._usd_course = await self._scalper.scalp_usd_course()
+            self._companies_list = await self._scalper.scalp()
         await self._scalper.client.session.close()
 
     def _get_most_expensive(self):
-        """Save information about companies price"""
+        """Save information about _companies price"""
         data = self._sort_elements('price',
-                                   self.usd_course,
+                                   self._usd_course,
                                    reverse=True)
-        with open(self.file_names['price'], 'w') as fi:
+        with open(self._files['price'], 'w') as fi:
             json.dump(data, fi)
 
     def _get_worst_pe(self):
         """Save information about P/E coefficient"""
         data = self._sort_elements('P/E')
-        with open(self.file_names['pe'], 'w') as fi:
+        with open(self._files['pe'], 'w') as fi:
             json.dump(data, fi)
 
     def _get_best_growth(self):
-        """Save information about companies year growth"""
+        """Save information about _companies year growth"""
         data = self._sort_elements('growth', reverse=True)
-        with open(self.file_names['growth'], 'w') as fi:
+        with open(self._files['growth'], 'w') as fi:
             json.dump(data, fi)
 
     def _get_most_profitable(self):
-        """Save information about most potentially profitable companies"""
+        """Save information about most potentially profitable _companies"""
         data = self._sort_elements('profit', reverse=True)
-        with open(self.file_names['profit'], 'w') as fi:
+        with open(self._files['profit'], 'w') as fi:
             json.dump(data, fi)
 
     def get_result(self):
-        """Collect companies data and save it to the files"""
+        """Collect _companies data and save it to the files"""
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self._get_companies_info())
         self._get_most_expensive()
