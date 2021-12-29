@@ -3,3 +3,4 @@ isort
 pytest
 beautifulsoup4
 aiohttp
+pytest-asyncio
