@@ -9,10 +9,3 @@ class SimplifiedEnum(type):
             setattr(mcs, data, data)
 
         return cls_instance
-
-
-if __name__ == '__main__':
-    class ColorsEnum(metaclass=SimplifiedEnum):
-        __keys = ("RED", "BLUE", "ORANGE", "BLACK")
-
-    assert ColorsEnum.RED == "RED"
