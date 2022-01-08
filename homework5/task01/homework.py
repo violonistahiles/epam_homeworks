@@ -17,16 +17,7 @@ class Homework:
 
     @property
     def deadline(self) -> datetime.timedelta:
-        current_time = datetime.datetime.now()
-        delta = self._final_day - current_time
-        return delta
+        return self._final_day - datetime.datetime.now()
 
     def is_active(self) -> bool:
-        current_time = datetime.datetime.now()
-        return False if current_time >= self._final_day else True
-
-
-if __name__ == '__main__':
-    task_1 = Homework('Be a hero', 2)
-    print(task_1._text, task_1._created, task_1._final_day)
-    print(task_1.deadline)
+        return not datetime.datetime.now() >= self._final_day
