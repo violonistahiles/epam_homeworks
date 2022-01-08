@@ -1,0 +1,23 @@
+<ValCurs Date="02.03.2002" name="Foreign Currency Market">
+<Valute ID="R01215">
+<NumCode>208</NumCode>
+<CharCode>DKK</CharCode>
+<Nominal>10</Nominal>
+<Name>Датских крон</Name>
+<Value>36,1010</Value>
+</Valute>
+<Valute ID="R01235">
+<NumCode>840</NumCode>
+<CharCode>USD</CharCode>
+<Nominal>1</Nominal>
+<Name>Доллар США</Name>
+<Value>30,9436</Value>
+</Valute>
+<Valute ID="R01625">
+<NumCode>702</NumCode>
+<CharCode>SGD</CharCode>
+<Nominal>1</Nominal>
+<Name>Сингапурский доллар</Name>
+<Value>16,8878</Value>
+</Valute>
+</ValCurs>
