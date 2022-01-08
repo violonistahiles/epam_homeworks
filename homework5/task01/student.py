@@ -16,11 +16,3 @@ class Student:
             return homework
 
         sys.stdout.write('You are late')
-
-
-if __name__ == '__main__':
-    student = Student('Vasiliy', 'Terkin')
-    task = Homework('Be a hero', 0)
-
-    print(student.first_name, student.last_name)
-    student.do_homework(task)

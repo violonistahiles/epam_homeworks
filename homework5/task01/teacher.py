@@ -10,11 +10,3 @@ class Teacher:
     @staticmethod
     def create_homework(text: str, days_to_solve: int) -> Homework:
         return Homework(text, days_to_solve)
-
-
-if __name__ == '__main__':
-    teacher = Teacher('Daniil', 'Shadrin')
-
-    print(teacher.first_name, teacher.last_name)
-    task = teacher.create_homework('Be a hero', 2)
-    print(task.deadline)
