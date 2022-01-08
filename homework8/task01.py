@@ -22,7 +22,7 @@ In case when value cannot be assigned to an attribute
 File size is expected to be small, you are permitted to read it entirely into
 memory.
 """
-from typing import Generator, Tuple, Union
+from typing import Generator, Optional, Tuple, Union
 
 
 def line_gen(
@@ -62,7 +62,7 @@ def convert_to_int(input_value: str) -> Union[str, int]:
         return input_value
 
 
-def process_line(line: str) -> Tuple[Union[int, str], Union[int, str]]:
+def process_line(line: str) -> Tuple[str, Union[int, str]]:
     """
     Split line to key and value pairs
 
@@ -73,14 +73,22 @@ def process_line(line: str) -> Tuple[Union[int, str], Union[int, str]]:
     """
     line = line.rstrip('\n')
     key, value = line.split('=')
-    return convert_to_int(key), convert_to_int(value)
+    return key, convert_to_int(value)
 
 
 class KeyValueStorage:
-    def __init__(self, path, *args, **kwargs):
+    def __init__(self, path: str, *args: Optional, **kwargs: Optional):
+        """
+        Create object representation of key value storage from file
+
+        :param path: Path to the file
+        :type path: str
+        """
         self._get_keys_and_values(path, *args, **kwargs)
 
-    def _get_keys_and_values(self, path, *args, **kwargs):
+    def _get_keys_and_values(
+            self, path: str, *args: Optional, **kwargs: Optional
+    ):
         """
         Assign key value pairs from file to class attributes
 
@@ -91,13 +99,18 @@ class KeyValueStorage:
         for line in lines:
             key, value = process_line(line)
 
-            if isinstance(key, int):
-                raise ValueError('Int value can\'t be key')
+            # Check if key is valid for naming attribute
+            if not key.isidentifier():
+                raise ValueError(f'Key "{key}" can\'t be key identifier')
             # Save initial value if key is repeated
             if key in self.__dict__:
                 continue
 
-            self.__setitem__(key, value)
+            # Check if key is in build-in class attributes
+            if key in dir(self):
+                self.__setitem__(key, getattr(self, key))
+            else:
+                self.__setitem__(key, value)
 
     def __setitem__(self, key, item):
         self.__dict__[key] = item
