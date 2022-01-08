@@ -69,9 +69,7 @@ def backspace_compare(first: str, second: str) -> bool:
     :rtype: bool
     """
     first_result = collect_data(first)
-    print(first_result)
     second_result = collect_data(second)
-    print(second_result)
 
     return first_result == second_result
 
