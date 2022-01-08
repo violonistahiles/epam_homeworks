@@ -22,7 +22,7 @@ def parsing_decorator(func: Callable) -> Callable:
         try:
             result = func(*args)
         except ElementNotFoundError:
-            result = None
+            return
         return result
     return wrapper
 
@@ -85,12 +85,13 @@ class TableParser:
 
 
 class CompanyParser:
-    def __init__(self):
-        """
-        Create class for parsing information from company page on site
-        'https://markets.businessinsider.com'
-        """
-        self._soup = None
+    """
+    Create class for parsing information from company page on site
+    'https://markets.businessinsider.com'
+    """
+    # def __init__(self):
+    #
+    #     self.soup = None
 
     @staticmethod
     def _set_up_data_link(data_link: str, tkdata: str) -> str:
@@ -114,16 +115,19 @@ class CompanyParser:
         data_link = data_link.format(tkdata, year_back_date, current_date)
         return data_link
 
-    def _parse_company_db_address(self) -> str:
+    @staticmethod
+    def _parse_company_db_address(soup: BeautifulSoup) -> str:
         """
         Read from HTML code company address for getting time series statistics
 
+        :param soup: HTML representation as nested data structure
+        :type soup: BeautifulSoup
         :return: Company specific address for url request
         :rtype: str
         """
         pattern_to_find = '"TKData" : "'
-        element = self._soup.find('script',
-                                  string=re.compile('.*ChartViewmodel.*'))
+        element = soup.find('script',
+                            string=re.compile('.*ChartViewmodel.*'))
         if not element:
             raise ElementNotFoundError
         func_str = element.contents[0]
@@ -135,16 +139,19 @@ class CompanyParser:
         tkdata = func_str[tkdata_start:tkdata_end]
         return tkdata
 
-    def _parse_parent(self, string: str) -> str:
+    @staticmethod
+    def _parse_parent(soup: BeautifulSoup, string: str) -> str:
         """
         Function to get data from parent HTML element
 
+        :param soup: HTML representation as nested data structure
+        :type soup: BeautifulSoup
         :param string: Text value of HTML element
         :type string: str
         :return: Text value of the parent HTML element
         :rtype: str
         """
-        element = self._soup.find('div', string=string)
+        element = soup.find('div', string=string)
         if not element:
             raise ElementNotFoundError
         parent_element = element.parent
@@ -152,46 +159,55 @@ class CompanyParser:
         result = result.strip('\r\n\t')
         return result
 
+    @staticmethod
     @parsing_decorator
-    def _parse_name(self) -> str:
+    def _parse_name(soup: BeautifulSoup) -> str:
         """
         Parse company name from HTML
 
+        :param soup: HTML representation as nested data structure
+        :type soup: BeautifulSoup
         :return: Company name
         :rtype: str
         """
-        element = self._soup.find('span', class_='price-section__label')
+        element = soup.find('span', class_='price-section__label')
         if not element:
             raise ElementNotFoundError
         name = element.contents[0]
         name = name.strip('\r\n\t')
         return name
 
+    @staticmethod
     @parsing_decorator
-    def _parse_current_value(self) -> float:
+    def _parse_current_value(soup: BeautifulSoup) -> float:
         """
         Parse current company share
 
+        :param soup: HTML representation as nested data structure
+        :type soup: BeautifulSoup
         :return: Company share price in USD
         :rtype: float
         """
-        element = self._soup.find('span',
-                                  class_='price-section__current-value')
+        element = soup.find('span',
+                            class_='price-section__current-value')
         if not element:
             raise ElementNotFoundError
         price = element.contents[0]
         price = price.replace(',', '')
         return float(price)
 
+    @staticmethod
     @parsing_decorator
-    def _parse_company_code(self) -> str:
+    def _parse_company_code(soup: BeautifulSoup) -> str:
         """
         Parse company abbreviation on the web site
 
+        :param soup: HTML representation as nested data structure
+        :type soup: BeautifulSoup
         :return: Company abbreviation on the web site
         :rtype: str
         """
-        element = self._soup.find('span', class_='price-section__category')
+        element = soup.find('span', class_='price-section__category')
         if not element:
             raise ElementNotFoundError
         company_code = element.find('span').contents[0]
@@ -199,42 +215,50 @@ class CompanyParser:
         return company_code
 
     @parsing_decorator
-    def _parse_company_pe(self) -> float:
+    def _parse_company_pe(self, soup: BeautifulSoup) -> float:
         """
         Parse company P/E ratio
 
+        :param soup: HTML representation as nested data structure
+        :type soup: BeautifulSoup
         :return: Company P/E ratio
         :rtype: float
         """
-        company_pe = self._parse_parent('P/E Ratio')
+        company_pe = self._parse_parent(soup, 'P/E Ratio')
         company_pe = company_pe.replace(',', '')
         return float(company_pe)
 
     @parsing_decorator
-    def _get_link_to_statistics(self, data_link: str) -> str:
+    def _get_link_to_statistics(
+            self, soup: BeautifulSoup, data_link: str
+    ) -> str:
         """
         Prepare URL link for year statistic request
 
+        :param soup: HTML representation as nested data structure
+        :type soup: BeautifulSoup
         :param data_link: Pattern for URL link
         :type data_link: str
         :return: URL link with data associated to current company
         :rtype: str
         """
-        tkdata = self._parse_company_db_address()
+        tkdata = self._parse_company_db_address(soup)
         url_link = self._set_up_data_link(data_link, tkdata)
         return url_link
 
     @parsing_decorator
-    def _parse_company_profit(self) -> float:
+    def _parse_company_profit(self, soup: BeautifulSoup) -> float:
         """
         Parse and calculate potential profit of buying company shares
         from 52 weeks low to 52 weeks high period
 
+        :param soup: HTML representation as nested data structure
+        :type soup: BeautifulSoup
         :return: Profit related to start price in percentages
         :rtype: float
         """
-        low_price = self._parse_parent('52 Week Low')
-        high_price = self._parse_parent('52 Week High')
+        low_price = self._parse_parent(soup, '52 Week Low')
+        high_price = self._parse_parent(soup, '52 Week High')
         low_price = float(low_price.replace(',', ''))
         high_price = float(high_price.replace(',', ''))
         related_profit = (high_price - low_price) * 100 / low_price
@@ -274,13 +298,13 @@ class CompanyParser:
         :return: Collected data
         :rtype: dict
         """
-        self._soup = BeautifulSoup(page, 'html.parser')
-        name = self._parse_name()
-        price = self._parse_current_value()
-        code = self._parse_company_code()
-        pe = self._parse_company_pe()
-        profit = self._parse_company_profit()
-        growth_link = self._get_link_to_statistics(data_link)
+        soup = BeautifulSoup(page, 'html.parser')
+        name = self._parse_name(soup)
+        price = self._parse_current_value(soup)
+        code = self._parse_company_code(soup)
+        pe = self._parse_company_pe(soup)
+        profit = self._parse_company_profit(soup)
+        growth_link = self._get_link_to_statistics(soup, data_link)
 
         company_dict = {'name': name,
                         'code': code,

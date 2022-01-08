@@ -101,10 +101,9 @@ def test_parse_company_db_address():
     fake_soup = FakeSoup('fake_data')
     fake_soup.contents = [fake_content]
     company_parser = CompanyParser()
-    company_parser._soup = fake_soup
     correct_result = '155'
 
-    result = company_parser._parse_company_db_address()
+    result = company_parser._parse_company_db_address(fake_soup)
 
     assert result == correct_result
 
@@ -115,10 +114,9 @@ def test_parse_current_value():
     fake_soup = FakeSoup('fake_data')
     fake_soup.contents = [fake_content]
     company_parser = CompanyParser()
-    company_parser._soup = fake_soup
     correct_result = 1555.36
 
-    result = company_parser._parse_current_value()
+    result = company_parser._parse_current_value(fake_soup)
 
     assert result == correct_result
 
@@ -129,10 +127,9 @@ def test_parse_company_code():
     fake_soup = FakeSoup('fake_data')
     fake_soup.contents = [fake_content]
     company_parser = CompanyParser()
-    company_parser._soup = fake_soup
     correct_result = 'code'
 
-    result = company_parser._parse_company_code()
+    result = company_parser._parse_company_code(fake_soup)
 
     assert result == correct_result
 
@@ -152,23 +149,24 @@ def test_parse_company_year_growth():
 def test_parse_company(mock_bs4):
     """Testing parse_company from TableParser works as expected"""
     def fake_func(*args):
-        return [*args] if args else 1
+        return [*args]
 
     fake_page = 'fake_page'
     fake_link = 'fake_link'
     company_parser = CompanyParser()
+    mock_bs4.return_value = fake_page
     company_parser._parse_name = fake_func
     company_parser._parse_current_value = fake_func
     company_parser._parse_company_code = fake_func
     company_parser._parse_company_pe = fake_func
     company_parser._parse_company_profit = fake_func
     company_parser._get_link_to_statistics = fake_func
-    correct_result = {'name': 1,
-                      'code': 1,
-                      'price': 1,
-                      'P/E': 1,
-                      'link': ['fake_link'],
-                      'profit': 1}
+    correct_result = {'name': ['fake_page'],
+                      'code': ['fake_page'],
+                      'price': ['fake_page'],
+                      'P/E': ['fake_page'],
+                      'link': ['fake_page', 'fake_link'],
+                      'profit': ['fake_page']}
 
     result = company_parser.parse_company(fake_page, fake_link)
 
