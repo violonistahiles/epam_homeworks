@@ -89,14 +89,11 @@ class Homework:
     @property
     def deadline(self) -> datetime.timedelta:
         """Time in days to complete the task"""
-        current_time = datetime.datetime.now()
-        delta = self._final_day - current_time
-        return delta
+        return self._final_day - datetime.datetime.now()
 
     def is_active(self) -> bool:
         """Check if there is time to solve the task"""
-        current_time = datetime.datetime.now()
-        return False if current_time >= self._final_day else True
+        return not datetime.datetime.now() >= self._final_day
 
 
 class HomeworkResult:
