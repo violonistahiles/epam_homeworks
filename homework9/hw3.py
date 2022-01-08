@@ -12,7 +12,7 @@ For dir with two files from hw1.py:
 6
 
 """
-import collections
+import inspect
 import os
 from pathlib import Path
 from typing import Callable, Generator, List, Optional
@@ -77,7 +77,7 @@ def get_lines(file_path:  str,
 
     if not tokenizer:
         tokenizer = empty_tokenizer
-    elif isinstance(tokenizer('line'), collections.abc.Generator):
+    elif inspect.isgeneratorfunction(tokenizer):
         tokenizer = generator_decorator(tokenizer)
 
     with open(file_path, 'r', encoding=encoding, errors=errors) as fi:
