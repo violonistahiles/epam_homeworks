@@ -1,3 +1,4 @@
+pre-commit
 flake8
 isort
 pytest
@@ -5,4 +6,4 @@ beautifulsoup4
 aiohttp
 pytest-asyncio
 SQLAlchemy
-pre-commit
+alembic
