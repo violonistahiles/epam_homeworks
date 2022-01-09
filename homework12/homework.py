@@ -41,12 +41,8 @@ PEP8 соблюдать строго.
 давать логичные подходящие имена.
 """
 import datetime
+from collections import defaultdict
 from typing import Union
-
-from sqlalchemy import select
-from sqlalchemy.orm import Session
-
-from homework12.models import HomeworkResultTable, HomeworkTable
 
 
 class DeadlineError(Exception):
@@ -83,82 +79,53 @@ def convert_time(date: datetime.datetime) -> str:
 
 class Person:
     """Basic class for any person"""
-    def __init__(self, first_name: str, last_name: str, engine, table):
+    def __init__(self, first_name: str, last_name: str, id_number: int):
         """
         :param first_name: First name of the person
         :type first_name: str
         :param last_name: Last name of the person
         :type last_name: str
+        :param id_number: ID number from database table
+        :type id_number: int
         """
         self.first_name = first_name
         self.last_name = last_name
-        self._engine = engine
-        self._table = table
-        self.id = self._send_to_db()
-
-    def _send_to_db(self):
-        with Session(self._engine) as session:
-            person = self._table(name=self.first_name,
-                                 surname=self.last_name)
-            session.add(person)
-            session.commit()
-            person_id = self.get_id(session)
-
-        return person_id
-
-    def get_id(self, session):
-        task = select(self._table.id).filter_by(name=self.first_name,
-                                                surname=self.last_name)
-        person_id = session.execute(task).scalar_one()
-        return person_id
+        self.id = id_number
 
 
 class Homework:
     """Class for storing information about task and its time to complete"""
-    def __init__(self, teacher_id: int, text: str, time_limit: int, engine):
+    def __init__(
+            self, teacher_id: int, text: str,
+            time_limit: int, id_number: int = None
+    ):
         """
         :param text: Task description
         :type text: str
         :param time_limit: Time to solve task
         :type time_limit: int
+        :param id_number: ID number from database table,
+                          updating after DB connection
+        :type id_number: int
         """
         if time_limit < 0:
             raise TimeToSolveError
 
-        self._teacher_id = teacher_id
-        self._text = text
+        self.teacher_id = teacher_id
+        self.text = text
         str_date = convert_time(datetime.datetime.now())
-        self._created = datetime.datetime.strptime(str_date, '%y:%m:%d')
-        self._final_day = self._created + datetime.timedelta(days=time_limit)
-        self._engine = engine
-        self.id = self._send_to_db()
-
-    def _send_to_db(self):
-        with Session(self._engine) as session:
-            hw = HomeworkTable(text=self._text,
-                               created=self._created,
-                               final_day=self._final_day,
-                               teacher_id=self._teacher_id)
-            session.add(hw)
-            session.commit()
-            hw_id = self._get_id(session)
-
-        return hw_id
-
-    def _get_id(self, session):
-        task = select(HomeworkTable.id).filter_by(text=self._text,
-                                                  teacher_id=self._teacher_id)
-        hw_id = session.execute(task).scalar_one()
-        return hw_id
+        self.created = datetime.datetime.strptime(str_date, '%y:%m:%d')
+        self.final_day = self.created + datetime.timedelta(days=time_limit)
+        self.id = id_number
 
     @property
     def deadline(self) -> datetime.timedelta:
         """Time in days to complete the task"""
-        return self._final_day - datetime.datetime.now()
+        return self.final_day - datetime.datetime.now()
 
     def is_active(self) -> bool:
         """Check if there is time to solve the task"""
-        return not datetime.datetime.now() >= self._final_day
+        return not datetime.datetime.now() >= self.final_day
 
 
 class HomeworkResult:
@@ -166,8 +133,7 @@ class HomeworkResult:
     def __init__(self,
                  author: Person,
                  homework: Homework,
-                 solution: str,
-                 engine):
+                 solution: str):
         """
         :param author: Person who created solution for a task
         :type author: Person
@@ -185,18 +151,6 @@ class HomeworkResult:
         str_date = convert_time(datetime.datetime.now())
         self.created = datetime.datetime.strptime(str_date, '%y:%m:%d')
         self._attributes = ['homework', 'author', 'solution']
-        self._engine = engine
-        self._send_to_db()
-
-    def _send_to_db(self):
-        with Session(self._engine) as session:
-            hw_result = HomeworkResultTable(author=self.author.id,
-                                            homework=self.homework.id,
-                                            solution=self.solution,
-                                            created=self.created,
-                                            status=False)
-            session.add(hw_result)
-            session.commit()
 
     def __eq__(self, other):
         for attribute in self._attributes:
@@ -216,6 +170,7 @@ class Student(Person):
                     ) -> Union[HomeworkResult, None]:
         """
         Create instance of homework solution by current student
+
         :param homework: Task to which student create solution
         :type homework: Homework
         :param solution: String description of the solution to the task
@@ -226,26 +181,13 @@ class Student(Person):
         if not homework.is_active():
             raise DeadlineError('You are late')
 
-        return HomeworkResult(self, homework, solution, self._engine)
+        return HomeworkResult(self, homework, solution)
 
 
 class Teacher(Person):
     """Abstract teacher with first and last name which can create task"""
-    @staticmethod
-    def get_homework_result(session, result):
-        task = select(HomeworkResultTable).filter_by(
-            author=result.author.id,
-            homework=result.homework.id,
-            solution=result.solution,
-        )
-        hw_result = session.execute(task).scalar_one()
-        return hw_result
-
-    def _change_hw_status(self, result):
-        with Session(self._engine) as session:
-            hw_result = self.get_homework_result(session, result)
-            hw_result.status = True
-            session.commit()
+    # Storage for homework and its solutions
+    homework_done = defaultdict(set)
 
     def create_homework(self, text: str, days_to_solve: int) -> Homework:
         """
@@ -258,7 +200,7 @@ class Teacher(Person):
         :return: Homework instance
         :rtype: Homework
         """
-        return Homework(self.id, text, days_to_solve, self._engine)
+        return Homework(self.id, text, days_to_solve)
 
     def check_homework(self, result: HomeworkResult) -> bool:
         """
@@ -271,6 +213,20 @@ class Teacher(Person):
         :rtype: bool
         """
         if len(result.solution) > 5:
-            self._change_hw_status(result)
+            self.homework_done[result.homework].add(result)
             return True
         return False
+
+    @classmethod
+    def reset_results(cls, homework: Union[None, Homework] = None) -> None:
+        """
+        Delete one or all homework examples from homework storage
+        :param homework: Homework to delete from storage
+        :type homework: Homework
+        :return: None
+        :rtype: None
+        """
+        if homework:
+            cls.homework_done.pop(homework)
+        else:
+            cls.homework_done.clear()
