@@ -1,7 +1,6 @@
-from sqlalchemy import select
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
-from homework12.fill_models import create_models
 from homework12.models import (HomeworkResultTable, HomeworkTable,
                                StudentTable, TeacherTable)
 
@@ -30,15 +29,16 @@ def select_student(session, student_id):
     return result
 
 
-engine = create_models()
+if __name__ == '__main__':
+    engine = create_engine('sqlite:///main.db')
 
-with Session(engine) as session:
-    hw_results = select_valid_homeworks(session)
-    for res in hw_results:
-        hw = select_homework_task(session, res[0].homework)
-        teach = select_teacher(session, hw.teacher_id)
-        student = select_student(session, res[0].author)
-        print('Student:', student.name, ', Task:', hw.text,
-              ', Solution:', res[0].solution, ', Teacher:', teach.name,
-              ', Creation_data: ', res[0].created)
-    print()
+    with Session(engine) as session:
+        hw_results = select_valid_homeworks(session)
+        for res in hw_results:
+            hw = select_homework_task(session, res[0].homework)
+            teach = select_teacher(session, hw.teacher_id)
+            student = select_student(session, res[0].author)
+            print('Student:', student.name, ', Task:', hw.text,
+                  ', Solution:', res[0].solution, ', Teacher:', teach.name,
+                  ', Creation_data: ', res[0].created)
+        print()

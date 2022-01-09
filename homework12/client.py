@@ -1,14 +1,14 @@
 from sqlalchemy import select
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 
-from homework12.homework import Student, Teacher
+from homework12.hw_6 import Student, Teacher
 from homework12.models import (HomeworkResultTable, HomeworkTable,
                                StudentTable, TeacherTable)
 
 
 class DBClient:
-    def __init__(self, engine: str):
-        # self._engine = create_engine(db_path)
+    def __init__(self, engine: Engine):
         self._engine = engine
 
     @staticmethod
