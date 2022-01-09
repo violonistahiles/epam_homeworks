@@ -12,33 +12,33 @@ class DBClient:
         self._engine = engine
 
     @staticmethod
-    def get_id(table, session, **kwargs):
+    def _get_id(table, session, **kwargs):
         task = select(table.id).filter_by(**kwargs)
         id_sample = session.execute(task).scalar_one()
         return id_sample
 
     @staticmethod
-    def check_element(table, session, **kwargs):
+    def _check_element(table, session, **kwargs):
         task = select(table).filter_by(**kwargs)
         result = session.execute(task).first()
         return result
 
-    def add_to_bd(self, table, **kwargs):
+    def _add_to_bd(self, table, **kwargs):
         sample = table(**kwargs)
         with Session(self._engine) as session:
-            if self.check_element(table, session, **kwargs):
-                sample_id = self.get_id(table, session, **kwargs)
+            if self._check_element(table, session, **kwargs):
+                sample_id = self._get_id(table, session, **kwargs)
             else:
                 session.add(sample)
                 session.commit()
-                sample_id = self.get_id(table, session, **kwargs)
+                sample_id = self._get_id(table, session, **kwargs)
 
         return sample_id
 
     def create_student(self, first_name, last_name):
         kwargs = {'name': first_name,
                   'surname': last_name}
-        student_id = self.add_to_bd(StudentTable, **kwargs)
+        student_id = self._add_to_bd(StudentTable, **kwargs)
         student = Student(first_name, last_name, student_id)
         return student
 
@@ -46,7 +46,7 @@ class DBClient:
         kwargs = {'name': first_name,
                   'surname': last_name}
 
-        teacher_id = self.add_to_bd(TeacherTable, **kwargs)
+        teacher_id = self._add_to_bd(TeacherTable, **kwargs)
         teacher = Teacher(first_name, last_name, teacher_id)
         return teacher
 
@@ -57,7 +57,7 @@ class DBClient:
                   'final_day': homework.final_day,
                   'teacher_id': homework.teacher_id}
 
-        hw_id = self.add_to_bd(HomeworkTable, **kwargs)
+        hw_id = self._add_to_bd(HomeworkTable, **kwargs)
         homework.id = hw_id
         return homework
 
@@ -69,7 +69,7 @@ class DBClient:
                   'created': homeworkresult.created,
                   'status': False}
 
-        _ = self.add_to_bd(HomeworkResultTable, **kwargs)
+        _ = self._add_to_bd(HomeworkResultTable, **kwargs)
         return homeworkresult
 
     def check_homework(self, teacher, result):
@@ -77,7 +77,7 @@ class DBClient:
             self._change_hw_status(result)
 
     @staticmethod
-    def get_homework_result(session, result):
+    def _get_homework_result(session, result):
         task = select(HomeworkResultTable).filter_by(
             author=result.author.id,
             homework=result.homework.id,
@@ -89,6 +89,6 @@ class DBClient:
 
     def _change_hw_status(self, result):
         with Session(self._engine) as session:
-            hw_result = self.get_homework_result(session, result)
+            hw_result = self._get_homework_result(session, result)
             hw_result.status = True
             session.commit()

@@ -9,12 +9,6 @@ from homework12.models import (HomeworkResultTable, HomeworkTable,
                                StudentTable, TeacherTable)
 
 
-def select_valid_homeworks(session):
-    task = select(HomeworkResultTable).filter_by(status=False)
-    result = session.execute(task)
-    return result
-
-
 def main():
 
     engine = create_models()

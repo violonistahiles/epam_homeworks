@@ -1,4 +1,5 @@
-from sqlalchemy import BOOLEAN, TIMESTAMP, Column, ForeignKey, Integer, String
+from sqlalchemy import (BOOLEAN, TIMESTAMP, Column, ForeignKey, Integer,
+                        String, create_engine)
 from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
@@ -61,3 +62,8 @@ class HomeworkResultTable(Base):
     def __repr__(self):
         return f"HomeworkResult(id={self.id!r}, solution={self.solution!r}," \
                f" created={self.created!r}), status={self.status!r}"
+
+
+if __name__ == '__main__':
+    engine = create_engine('sqlite:///main.db')
+    Base.metadata.create_all(engine)
