@@ -31,7 +31,7 @@ def create_models():
                                    solution='Force is always with me',
                                    created=datetime.strptime('21:01:10',
                                                              '%y:%m:%d'),
-                                   status=True)
+                                   status=False)
 
     hw_res_2 = HomeworkResultTable(author=2,
                                    homework=1,
@@ -50,3 +50,7 @@ def create_models():
         session.commit()
 
     return engine
+
+
+if __name__ == '__main__':
+    create_models()
