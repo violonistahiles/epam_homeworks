@@ -1,95 +1,50 @@
-import sqlalchemy
-from sqlalchemy import (BOOLEAN, TIMESTAMP, Column, ForeignKey, Integer,
-                        String, create_engine)
-from sqlalchemy.orm import Session, declarative_base, relationship
-
-print(sqlalchemy.__version__)
-engine = create_engine("sqlite+pysqlite:///:memory:", echo=True, future=True)
-
-# with engine.connect() as conn:
-#     conn.execute(text("CREATE TABLE some_table (x int, y int)"))
-#     conn.execute(
-#         text("INSERT INTO some_table (x, y) VALUES (:x, :y)"),
-#         [{"x": 1, "y": 1}, {"x": 2, "y": 4}]
-#     )
-#     conn.commit()
+# import sqlalchemy
+# from sqlalchemy import (BOOLEAN, TIMESTAMP, Column, ForeignKey, Integer,
+#                         String, create_engine, select)
+# from sqlalchemy.orm import Session, declarative_base, relationship
+# from datetime import datetime
+# import logging
 #
-# with engine.connect() as conn:
-#     result = conn.execute(text("SELECT x, y FROM some_table"))
-#     for row in result:
-#         print(f"x: {row.x}  y: {row.y}")
-
-Base = declarative_base()
+# from homework12.fill_models import create_models
+# from homework12.models import (StudentTable, TeacherTable,
+#                                HomeworkTable, HomeworkResultTable)
+from homework12.homework import Homework, HomeworkResult, Student, Teacher
 
 
-class Student(Base):
-    __tablename__ = 'students'
+def main():
+    opp_teacher = Teacher('Daniil', 'Shadrin')
+    advanced_python_teacher = Teacher('Aleksandr', 'Smetanin')
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String)
-    surname = Column(String)
+    lazy_student = Student('Roman', 'Petrov')
+    good_student = Student('Lev', 'Sokolov')
 
-    homeworks = relationship('HomeworkResult', backref='student')
+    oop_hw = opp_teacher.create_homework('Learn OOP', 1)
+    docs_hw = opp_teacher.create_homework('Read docs', 5)
 
-    def __repr__(self):
-        return f"Student(id={self.id!r}, name={self.name!r}," \
-               f" surname={self.surname!r})"
+    result_1 = good_student.do_homework(oop_hw, 'I have done this hw')
+    result_2 = good_student.do_homework(docs_hw, 'I have done this hw too')
+    result_3 = lazy_student.do_homework(docs_hw, 'done')
+    try:
+        result_4 = HomeworkResult(good_student, "fff", "Solution")
+        print(result_4.author)
+    except Exception:
+        print('There was an exception here')
+    opp_teacher.check_homework(result_1)
+    temp_1 = opp_teacher.homework_done
 
+    advanced_python_teacher.check_homework(result_1)
+    temp_2 = Teacher.homework_done
+    assert temp_1 == temp_2
 
-class Teacher(Base):
-    __tablename__ = 'teachers'
+    opp_teacher.check_homework(result_2)
+    opp_teacher.check_homework(result_3)
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String)
-    surname = Column(String)
+    print(Teacher.homework_done[oop_hw])
+    Teacher.reset_results()
 
-    homeworks = relationship('Homework', backref='teacher')
-
-    def __repr__(self):
-        return f"Teacher(id={self.id!r}, name={self.name!r}," \
-               f" surname={self.surname!r})"
-
-
-class Homework(Base):
-    __tablename__ = 'homeworks'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    text = Column(String)
-    created = Column(TIMESTAMP)
-    final_day = Column(TIMESTAMP)
-    teacher_id = Column(Integer, ForeignKey('teachers.id'))
-
-    solved = relationship('HomeworkResult', backref='origin')
-
-    def __repr__(self):
-        return f"Homework(id={self.id!r}, text={self.text!r}," \
-               f" created={self.created!r}), final_day={self.final_day!r}"
+    jedi_hw = Homework('Take the force with you', 2)
+    print(jedi_hw.is_active())
 
 
-class HomeworkResult(Base):
-    __tablename__ = 'homework_results'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    author = Column(Integer, ForeignKey('students.id'))
-    homework = Column(Integer, ForeignKey('homeworks.id'))
-    solution = Column(String)
-    created = Column(TIMESTAMP)
-    status = Column(BOOLEAN, default=False)
-
-    def __repr__(self):
-        return f"HomeworkResult(id={self.id!r}, solution={self.solution!r}," \
-               f" created={self.created!r}), status={self.status!r}"
-
-
-Base.metadata.create_all(engine)
-
-student1 = Student(name='Oleg', surname='TheFirst')
-student2 = Student(name='Vladimir', surname='TheSecond')
-
-session = Session(engine)
-session.add(student1)
-session.add(student2)
-
-session.flush()
-some_student = session.get(Student, 1)
-print(some_student)
+if __name__ == '__main__':
+    main()
