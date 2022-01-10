@@ -65,5 +65,6 @@ class HomeworkResultTable(Base):
 
 
 if __name__ == '__main__':
+    # Create database without migrations
     engine = create_engine('sqlite:///main.db')
     Base.metadata.create_all(engine)

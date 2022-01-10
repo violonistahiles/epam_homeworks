@@ -1,44 +1,112 @@
+import csv
+import os
+from typing import Any, Callable, List, Tuple, Union
+
 from sqlalchemy import create_engine, select
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 
-from homework12.models import (HomeworkResultTable, HomeworkTable,
+from homework12.models import (Base, HomeworkResultTable, HomeworkTable,
                                StudentTable, TeacherTable)
 
 
-def select_valid_homeworks(session):
-    task = select(HomeworkResultTable).filter_by(status=True)
-    result = session.execute(task)
-    return result
+class ElementNotFoundError(Exception):
+    """No such element in database"""
 
 
-def select_homework_task(session, homework_id):
-    task = select(HomeworkTable).filter_by(id=homework_id)
-    result = session.execute(task).scalar_one()
-    return result
+def queries_decorator(func: Callable) -> Callable:
+    """
+    Decorator to handling exceptions during database queries
+    :param func: Parsing function
+    :type func: Callable
+    :return: Decorated function
+    :rtype: Callable
+    """
+    def wrapper(*args, **kwargs):
+
+        result = func(*args, **kwargs)
+        if not result:
+            raise ElementNotFoundError
+
+        return result
+    return wrapper
 
 
-def select_teacher(session, teacher_id):
-    task = select(TeacherTable).filter_by(id=teacher_id)
-    result = session.execute(task).scalar_one()
-    return result
+class ReportClient:
+    """Class for creating report about students homework results"""
+    def __init__(self, engine: Engine, data_path: str):
+        """
+        :param engine: Object establishing connection to database
+        :type engine: Engine
+        :param data_path: Path to folder where to store report
+        :type data_path: str
+        """
+        self._engine = engine
+        self.file_path = os.path.join(data_path, 'report.csv')
 
+    @staticmethod
+    @queries_decorator
+    def _select(
+            session: Session, table: Base, one: bool = True, **kwargs: Any
+    ) -> Union[Tuple[Base], Tuple[Tuple[Base], ...]]:
+        """
+        Select many elements from the table
 
-def select_student(session, student_id):
-    task = select(StudentTable).filter_by(id=student_id)
-    result = session.execute(task).scalar_one()
-    return result
+        :param session: Manages persistence operations for ORM-mapped objects
+        :type session: Session
+        :param table: ORM mapped class, representing database table
+        :type table: Base
+        :param one: Flag to return one value or all results
+        :type one: bool
+        :param **kwargs: Key, value pairs filtering data in table
+        :type **kwargs: Any
+        :return: ORM mapped class, representing single or many rows
+                 from database table
+        :rtype: Union[List[Base], Base]
+        """
+        task = select(table).filter_by(**kwargs)
+        result = session.execute(task)
+        return result.fetchone() if one else result.fetchall()
+
+    def _save_results(self, data: List, first: bool = False):
+        """
+        Save single data row to report.csv
+
+        :param data: List with values for single line in .csv file
+        :type data: List
+        :param first: Flag to save rewrite file and fill header
+        :type first: bool
+        """
+        if first:
+            with open(self.file_path, 'w', newline='') as fi:
+                report = csv.writer(fi)
+                report.writerow(data)
+        else:
+            with open(self.file_path, 'a', newline='') as fi:
+                report = csv.writer(fi)
+                report.writerow(data)
+
+    def get_report(self):
+        """Save data from database in report.csv file"""
+        self._save_results(['Student Name', 'Task', 'Solution',
+                            'Teacher', 'Creation Date'], first=True)
+
+        with Session(self._engine) as session:
+            hw_results = self._select(session, HomeworkResultTable,
+                                      one=False, status=True)
+            for res in hw_results:
+                hw = self._select(session, HomeworkTable,
+                                  id=res[0].homework)[0]
+                teacher = self._select(session, TeacherTable,
+                                       id=hw.teacher_id)[0]
+                student = self._select(session, StudentTable,
+                                       id=res[0].author)[0]
+                self._save_results([student.name, hw.text, res[0].solution,
+                                    teacher.name, res[0].created])
 
 
 if __name__ == '__main__':
     engine = create_engine('sqlite:///main.db')
-
-    with Session(engine) as session:
-        hw_results = select_valid_homeworks(session)
-        for res in hw_results:
-            hw = select_homework_task(session, res[0].homework)
-            teach = select_teacher(session, hw.teacher_id)
-            student = select_student(session, res[0].author)
-            print('Student:', student.name, ', Task:', hw.text,
-                  ', Solution:', res[0].solution, ', Teacher:', teach.name,
-                  ', Creation_data: ', res[0].created)
-        print()
+    path = os.getcwd()
+    reporter = ReportClient(engine, path)
+    reporter.get_report()
