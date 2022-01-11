@@ -18,18 +18,6 @@ from pathlib import Path
 from typing import Callable, Generator, List, Optional
 
 
-def empty_tokenizer(line: str) -> List[str]:
-    """
-    Tokenizer to convert single element as a token
-
-    :param line: Input string
-    :type line: str
-    :return: List with one element
-    :rtype: List[str]
-    """
-    return [line]
-
-
 def generator_decorator(func: Callable) -> Callable:
     """
     Decorator to get result of generator work
@@ -76,13 +64,14 @@ def get_lines(file_path:  str,
         raise FileNotFoundError
 
     if not tokenizer:
-        tokenizer = empty_tokenizer
+        tokenizer = str.splitlines
     elif inspect.isgeneratorfunction(tokenizer):
         tokenizer = generator_decorator(tokenizer)
 
     with open(file_path, 'r', encoding=encoding, errors=errors) as fi:
         line = fi.readline()
-        while line or '\n' in line:
+        while line:
+            print(repr(line))
             tokens = tokenizer(line)
 
             yield len(tokens)
