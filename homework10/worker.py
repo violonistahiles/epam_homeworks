@@ -72,31 +72,39 @@ class Worker:
             self._companies_list = await self._scalper.scalp()
         await self._scalper.client.session.close()
 
+    def _save_data(self, data: List[Dict], category: str):
+        """
+        Save data to corresponding file
+
+        :param data: List with data
+        :type data: List[Dict]
+        :param category: Category of the data
+        :type category: str
+        """
+        with open(self._files[category], 'w') as fi:
+            json.dump(data, fi)
+
     def _get_most_expensive(self):
         """Save information about companies price"""
         data = self._sort_elements('price',
                                    self._usd_course,
                                    reverse=True)
-        with open(self._files['price'], 'w') as fi:
-            json.dump(data, fi)
+        self._save_data(data, 'price')
 
     def _get_worst_pe(self):
         """Save information about P/E coefficient"""
         data = self._sort_elements('P/E')
-        with open(self._files['pe'], 'w') as fi:
-            json.dump(data, fi)
+        self._save_data(data, 'pe')
 
     def _get_best_growth(self):
         """Save information about companies year growth"""
         data = self._sort_elements('growth', reverse=True)
-        with open(self._files['growth'], 'w') as fi:
-            json.dump(data, fi)
+        self._save_data(data, 'growth')
 
     def _get_most_profitable(self):
         """Save information about most potentially profitable companies"""
         data = self._sort_elements('profit', reverse=True)
-        with open(self._files['profit'], 'w') as fi:
-            json.dump(data, fi)
+        self._save_data(data, 'profit')
 
     def get_result(self):
         """Collect companies data and save it to the files"""
