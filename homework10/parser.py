@@ -313,7 +313,7 @@ class CompanyParser:
         company_dict = {'name': name,
                         'code': code,
                         'price': price,
-                        'P/E': pe,
+                        'pe': pe,
                         'link': growth_link,
                         'profit': profit}
 

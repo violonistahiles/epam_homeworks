@@ -33,10 +33,18 @@ class Worker:
         self._usd_course = None
         self._number_of_elements = number_of_elements
 
-    def _sort_elements(self,
-                       key: str,
-                       coef: float = 1.0,
-                       reverse: bool = False) -> List[Dict]:
+    async def _get_companies_info(self):
+        """Collect _companies data from web"""
+        number_of_threads = 15
+        sem = asyncio.Semaphore(number_of_threads)
+        async with sem:
+            self._usd_course = await self._scalper.scalp_usd_course()
+            self._companies_list = await self._scalper.scalp()
+        await self._scalper.client.session.close()
+
+    def _sort_elements(
+            self, key: str, coef: float = 1.0, reverse: bool = False
+    ) -> List[Dict]:
         """
         Sort parsed data by some key and take only defined number of elements
 
@@ -63,15 +71,6 @@ class Worker:
 
         return data
 
-    async def _get_companies_info(self):
-        """Collect _companies data from web"""
-        number_of_threads = 15
-        sem = asyncio.Semaphore(number_of_threads)
-        async with sem:
-            self._usd_course = await self._scalper.scalp_usd_course()
-            self._companies_list = await self._scalper.scalp()
-        await self._scalper.client.session.close()
-
     def _write_to_file(self, data: List[Dict], category: str):
         """
         Save data to corresponding file
@@ -84,36 +83,30 @@ class Worker:
         with open(self._files[category], 'w') as fi:
             json.dump(data, fi)
 
-    def _get_most_expensive(self):
-        """Save information about companies price"""
-        data = self._sort_elements('price',
-                                   self._usd_course,
-                                   reverse=True)
-        self._write_to_file(data, 'price')
+    def _save_data(
+            self, key: str, coef: float = 1.0, reverse: bool = False
+    ) -> None:
+        """
+        Save specified data to related file
 
-    def _get_worst_pe(self):
-        """Save information about P/E coefficient"""
-        data = self._sort_elements('P/E')
-        self._write_to_file(data, 'pe')
-
-    def _get_best_growth(self):
-        """Save information about companies year growth"""
-        data = self._sort_elements('growth', reverse=True)
-        self._write_to_file(data, 'growth')
-
-    def _get_most_profitable(self):
-        """Save information about most potentially profitable companies"""
-        data = self._sort_elements('profit', reverse=True)
-        self._write_to_file(data, 'profit')
+        :param key: Data category
+        :type key: str
+        :param coef: Coefficient to convert data
+        :type coef: float
+        :param reverse: Flag to sort data in increasing or decreasing order
+        type reverse: bool
+        """
+        data = self._sort_elements(key, coef, reverse)
+        self._write_to_file(data, key)
 
     def get_result(self):
         """Collect companies data and save it to the files"""
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self._get_companies_info())
-        self._get_most_expensive()
-        self._get_worst_pe()
-        self._get_best_growth()
-        self._get_most_profitable()
+        self._save_data('price', self._usd_course, reverse=True)
+        self._save_data('pe')
+        self._save_data('growth', reverse=True)
+        self._save_data('profit', reverse=True)
 
 
 if __name__ == '__main__':
