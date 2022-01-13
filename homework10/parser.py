@@ -4,6 +4,8 @@ from typing import Callable, Dict, List
 
 from bs4 import BeautifulSoup
 
+from homework10.utils import fill_date
+
 
 class ElementNotFoundError(Exception):
     """No such element on HTML"""
@@ -70,7 +72,7 @@ class TableParser:
         :type site: str
         """
         soup = BeautifulSoup(page, 'html.parser')
-        # Find table with _companies
+        # Find table with companies
         table = soup.find("tbody", class_='table__tbody')
 
         # Process table line by line
@@ -89,9 +91,6 @@ class CompanyParser:
     Create class for parsing information from company page on site
     'https://markets.businessinsider.com'
     """
-    # def __init__(self):
-    #
-    #     self.soup = None
 
     @staticmethod
     def _set_up_data_link(data_link: str, tkdata: str) -> str:
@@ -107,10 +106,15 @@ class CompanyParser:
         :rtype: str
         """
         current = datetime.datetime.today()
-        current_date = f'{current.year}{current.month}{current.day}'
+        month = fill_date(current.month)
+        day = fill_date(current.day)
+        current_date = f'{current.year}{month}{day}'
+
         # Not consider leap year
         year_back = current - datetime.timedelta(days=365)
-        year_back_date = f'{year_back.year}{year_back.month}{year_back.day}'
+        month = fill_date(year_back.month)
+        day = fill_date(year_back.day)
+        year_back_date = f'{year_back.year}{month}{day}'
 
         data_link = data_link.format(tkdata, year_back_date, current_date)
         return data_link

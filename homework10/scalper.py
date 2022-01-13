@@ -5,6 +5,7 @@ from xml.etree import ElementTree
 
 from homework10.connection import URLReader
 from homework10.parser import CompanyParser, TableParser
+from homework10.utils import fill_date
 
 
 class Scalper:
@@ -30,9 +31,12 @@ class Scalper:
         :return: Current USD course
         :rtype: float
         """
+
         link = self._info['BANK_LINK']
         date = datetime.today()
-        link = link.format(f'{date.day}/{date.month}/{date.year}')
+        month = fill_date(date.month)
+        day = fill_date(date.day)
+        link = link.format(f'{day}/{month}/{date.year}')
 
         page = await self.client.get_page(link, encoding='ISO-8859-2')
         root = ElementTree.fromstring(page)
@@ -101,17 +105,17 @@ class Scalper:
         """
         await self._scalp_first_page()
 
-        # Parse links for _companies pages
+        # Parse links for companies pages
         tasks = [asyncio.create_task(self._scalp_table(url)) for url
                  in self._pages_links]
         await asyncio.gather(*tasks)
 
-        # Parse _companies data from its pages
+        # Parse companies data from its pages
         tasks = [asyncio.create_task(self._scalp_company_page(url)) for url
                  in self._companies_links]
         await asyncio.gather(*tasks)
 
-        # Parse _companies growth by link gotten from _companies pages
+        # Parse companies growth by link gotten from companies pages
         tasks = [asyncio.create_task(self._scalp_company_growth(data)) for data
                  in self._companies.values()]
         await asyncio.gather(*tasks)

@@ -72,7 +72,7 @@ class Worker:
             self._companies_list = await self._scalper.scalp()
         await self._scalper.client.session.close()
 
-    def _save_data(self, data: List[Dict], category: str):
+    def _write_to_file(self, data: List[Dict], category: str):
         """
         Save data to corresponding file
 
@@ -89,22 +89,22 @@ class Worker:
         data = self._sort_elements('price',
                                    self._usd_course,
                                    reverse=True)
-        self._save_data(data, 'price')
+        self._write_to_file(data, 'price')
 
     def _get_worst_pe(self):
         """Save information about P/E coefficient"""
         data = self._sort_elements('P/E')
-        self._save_data(data, 'pe')
+        self._write_to_file(data, 'pe')
 
     def _get_best_growth(self):
         """Save information about companies year growth"""
         data = self._sort_elements('growth', reverse=True)
-        self._save_data(data, 'growth')
+        self._write_to_file(data, 'growth')
 
     def _get_most_profitable(self):
         """Save information about most potentially profitable companies"""
         data = self._sort_elements('profit', reverse=True)
-        self._save_data(data, 'profit')
+        self._write_to_file(data, 'profit')
 
     def get_result(self):
         """Collect companies data and save it to the files"""
@@ -117,5 +117,5 @@ class Worker:
 
 
 if __name__ == '__main__':
-    worker = Worker()
+    worker = Worker(number_of_elements=10)
     worker.get_result()

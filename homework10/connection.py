@@ -23,10 +23,11 @@ class URLReader:
         :return: HTML in string format from requested URL
         :rtype: str
         """
+        sleep_dilation_sec = 1
         for i in range(self._attempts):
             async with self.session.get(url) as response:
                 if response.status != 200:
-                    time.sleep(1)
+                    time.sleep(sleep_dilation_sec)
                     continue
                 url_str = await response.text(encoding=encoding)
                 return url_str
