@@ -17,7 +17,7 @@ class Scalper:
         :type info: Dict
         """
         self._info = info
-        self.client = URLReader()
+        self._client = URLReader()
         self._table_parser = TableParser()
         self._company_parser = CompanyParser()
         self._companies_links = []
@@ -38,7 +38,7 @@ class Scalper:
         day = fill_date(date.day)
         link = link.format(f'{day}/{month}/{date.year}')
 
-        page = await self.client.get_page(link, encoding='ISO-8859-2')
+        page = await self._client.get_page(link, encoding='ISO-8859-2')
         root = ElementTree.fromstring(page)
         dollar_course_str = root.findall(".//*[@ID='R01235']/Value")[0].text
         usd_course = float(dollar_course_str.replace(',', '.'))
@@ -47,7 +47,7 @@ class Scalper:
 
     async def _scalp_first_page(self):
         """Get data from initial parsing page"""
-        first_page = await self.client.get_page(self._info['FIRST_PAGE_LINK'])
+        first_page = await self._client.get_page(self._info['FIRST_PAGE_LINK'])
 
         pages_number = self._table_parser.parse_pages_number(first_page)
         self._pages_links = [self._info['FIRST_PAGE_LINK'] + page for page
@@ -64,7 +64,7 @@ class Scalper:
         :param link: URL link to page with company summary
         :type link: str
         """
-        page = await self.client.get_page(link)
+        page = await self._client.get_page(link)
         links = self._table_parser.parse_companies(page,
                                                    self._info['SITE_LINK'])
         self._companies_links.extend(links)
@@ -76,7 +76,7 @@ class Scalper:
         :param link: URL to company page
         :type link: str
         """
-        page = await self.client.get_page(link)
+        page = await self._client.get_page(link)
         data = self._company_parser.parse_company(page,
                                                   self._info['DATA_LINK'])
         self._companies.update({data['code']: data})
@@ -89,12 +89,16 @@ class Scalper:
         :type data: Dict
         """
         if data['link']:
-            page = await self.client.get_page(data['link'])
+            page = await self._client.get_page(data['link'])
             growth = self._company_parser.parse_company_year_growth(page)
         else:
             growth = None
         self._companies[data['code']].update({'growth': growth})
         self._companies[data['code']].pop('link')
+
+    async def close_session(self):
+        """Close client session for URL requests"""
+        await self._client.session.close()
 
     async def scalp(self) -> List[Dict]:
         """

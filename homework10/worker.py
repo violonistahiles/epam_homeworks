@@ -1,7 +1,7 @@
 import asyncio
 import json
 import os
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import toml
 
@@ -29,25 +29,34 @@ class Worker:
                        'profit': os.path.join(current_path, 'profit.json')}
 
         self._scalper = Scalper(info)
-        self._companies_list = None
-        self._usd_course = None
         self._number_of_elements = number_of_elements
 
-    async def _get_companies_info(self):
-        """Collect _companies data from web"""
+    async def _get_info(self) -> Tuple[float, List[Dict]]:
+        """
+        Collect _companies data from web
+
+        :return: Current USD course, List with information about all companies
+        :rtype: Tuple[float, List[Dict]]
+        """
         number_of_threads = 15
         sem = asyncio.Semaphore(number_of_threads)
         async with sem:
-            self._usd_course = await self._scalper.scalp_usd_course()
-            self._companies_list = await self._scalper.scalp()
-        await self._scalper.client.session.close()
+            usd_course = await self._scalper.scalp_usd_course()
+            companies_list = await self._scalper.scalp()
+        await self._scalper.close_session()
+
+        return usd_course, companies_list
 
     def _sort_elements(
-            self, key: str, coef: float = 1.0, reverse: bool = False
+            self, companies_info: List[Dict], key: str,
+            coef: float = 1.0, reverse: bool = False
     ) -> List[Dict]:
         """
         Sort parsed data by some key and take only defined number of elements
 
+        :param companies_info: List with collected information about all
+                               companies
+        :type companies_info: List[Dict]
         :param key: Dictionary key to sort values
         :type key: str
         :param coef: Optional parameter to modify selected data
@@ -58,7 +67,7 @@ class Worker:
                  parameter
         :rtype: List
         """
-        elements = [item for item in self._companies_list if item[key]]
+        elements = [item for item in companies_info if item[key]]
         elements = sorted(elements, key=lambda x: x[key], reverse=reverse)
 
         data = []
@@ -84,11 +93,15 @@ class Worker:
             json.dump(data, fi)
 
     def _save_data(
-            self, key: str, coef: float = 1.0, reverse: bool = False
+            self, companies_info: List[Dict], key: str,
+            coef: float = 1.0, reverse: bool = False
     ) -> None:
         """
-        Save specified data to related file
+        Save specified data category to related file
 
+        :param companies_info: List with collected information about all
+                               companies
+        :type companies_info: List[Dict]
         :param key: Data category
         :type key: str
         :param coef: Coefficient to convert data
@@ -96,17 +109,17 @@ class Worker:
         :param reverse: Flag to sort data in increasing or decreasing order
         type reverse: bool
         """
-        data = self._sort_elements(key, coef, reverse)
+        data = self._sort_elements(companies_info, key, coef, reverse)
         self._write_to_file(data, key)
 
     def get_result(self):
         """Collect companies data and save it to the files"""
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(self._get_companies_info())
-        self._save_data('price', self._usd_course, reverse=True)
-        self._save_data('pe')
-        self._save_data('growth', reverse=True)
-        self._save_data('profit', reverse=True)
+        usd_course, companies_info = loop.run_until_complete(self._get_info())
+        self._save_data(companies_info, 'price', usd_course, reverse=True)
+        self._save_data(companies_info, 'pe')
+        self._save_data(companies_info, 'growth', reverse=True)
+        self._save_data(companies_info, 'profit', reverse=True)
 
 
 if __name__ == '__main__':

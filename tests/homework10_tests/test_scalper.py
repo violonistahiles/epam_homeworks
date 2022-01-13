@@ -34,7 +34,7 @@ async def test_scalp_usd_course(mock_reader, usd_data):
     fake_client = FakeClient(usd_data)
     fake_info = {'BANK_LINK': '{}'}
     scalper = Scalper(fake_info)
-    scalper.client = fake_client
+    scalper._client = fake_client
     correct_result = 30.9436
 
     result = await scalper.scalp_usd_course()
@@ -54,7 +54,7 @@ async def test_scalp_first_page(mock_reader, mock_table):
     fake_info = {'FIRST_PAGE_LINK': 'page',
                  'SITE_LINK': 'site'}
     scalper = Scalper(fake_info)
-    scalper.client = fake_client
+    scalper._client = fake_client
     scalper._table_parser = mock_table
     correct_pages_links = ['page1', 'page2']
     correct_companies_links = ['link1', 'link2']
@@ -76,7 +76,7 @@ async def test_scalp_table(mock_reader, mock_table):
     fake_client = FakeClient('fake_data')
     fake_info = {'SITE_LINK': 'site'}
     scalper = Scalper(fake_info)
-    scalper.client = fake_client
+    scalper._client = fake_client
     scalper._table_parser = mock_table
     correct_companies_links = ['link1', 'link2']
 
@@ -96,7 +96,7 @@ async def test_scalp_company_page(mock_reader, mock_company):
     fake_client = FakeClient('fake_data')
     fake_info = {'DATA_LINK': 'link'}
     scalper = Scalper(fake_info)
-    scalper.client = fake_client
+    scalper._client = fake_client
     scalper._company_parser = mock_company
     correct_companies = {'test_code': {'code': 'test_code'}}
 
@@ -117,7 +117,7 @@ async def test_scalp_company_growth_with_link(mock_reader, mock_company):
     fake_client = FakeClient('fake_data')
     fake_info = {'fake_key': 'fake_value'}
     scalper = Scalper(fake_info)
-    scalper.client = fake_client
+    scalper._client = fake_client
     scalper._company_parser = mock_company
     scalper._companies = start_dict
     correct_companies = {'test_code': {'code': 'test_code', 'growth': 5.3}}
@@ -138,7 +138,7 @@ async def test_scalp_company_growth_without_link(mock_reader, mock_company):
     fake_client = FakeClient('fake_data')
     fake_info = {'fake_key': 'fake_value'}
     scalper = Scalper(fake_info)
-    scalper.client = fake_client
+    scalper._client = fake_client
     scalper._company_parser = mock_company
     scalper._companies = start_dict
     correct_companies = {'test_code': {'code': 'test_code', 'growth': None}}

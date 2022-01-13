@@ -81,14 +81,29 @@ def test_parse_companies(mock_bs4):
 
 
 @patch('homework10.parser.datetime')
-def test_set_up_data_link(mock_time):
+def test_set_up_data_link_with_single_date_digits(mock_time):
     """Testing set_up_data_link from CompanyParser works as expected"""
     fake_link = '{}{}{}'
     fake_data = 'fake_data'
     mock_time.datetime.today.return_value = FakeTime(5, 4, 3)
     mock_time.timedelta.return_value = 0
     company_parser = CompanyParser()
-    correct_result = 'fake_data543543'
+    correct_result = 'fake_data5040350403'
+
+    result = company_parser._set_up_data_link(fake_link, fake_data)
+
+    assert result == correct_result
+
+
+@patch('homework10.parser.datetime')
+def test_set_up_data_link_without_single_digits(mock_time):
+    """Testing set_up_data_link from CompanyParser works as expected"""
+    fake_link = '{}{}{}'
+    fake_data = 'fake_data'
+    mock_time.datetime.today.return_value = FakeTime(5, 24, 33)
+    mock_time.timedelta.return_value = 0
+    company_parser = CompanyParser()
+    correct_result = 'fake_data5243352433'
 
     result = company_parser._set_up_data_link(fake_link, fake_data)
 
@@ -164,7 +179,7 @@ def test_parse_company(mock_bs4):
     correct_result = {'name': ['fake_page'],
                       'code': ['fake_page'],
                       'price': ['fake_page'],
-                      'P/E': ['fake_page'],
+                      'pe': ['fake_page'],
                       'link': ['fake_page', 'fake_link'],
                       'profit': ['fake_page']}
 

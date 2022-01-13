@@ -91,7 +91,6 @@ class CompanyParser:
     Create class for parsing information from company page on site
     'https://markets.businessinsider.com'
     """
-
     @staticmethod
     def _set_up_data_link(data_link: str, tkdata: str) -> str:
         """

@@ -5,23 +5,10 @@ import pytest
 from homework10.worker import Worker
 
 
-class FakeSession:
-    def __await__(self):
-        return (yield)
-
-    async def close(self, *args, **kwargs):
-        await self
-
-
-class FakeClient:
-    session = FakeSession()
-
-
 class FakeScalper:
     def __init__(self, companies, course):
         self.companies = companies
         self.course = course
-        self.client = FakeClient()
 
     async def scalp_usd_course(self, *args, **kwargs):
         await self
@@ -30,6 +17,9 @@ class FakeScalper:
     async def scalp(self, *args, **kwargs):
         await self
         return self.companies
+
+    async def close_session(self, *args, **kwargs):
+        await self
 
     def __await__(self):
         return (yield)
@@ -45,11 +35,10 @@ def test_sort_elements_without_coef(mock_scalper):
                            {'code': 'code2', 'name': 'name2', 'data': 1},
                            {'code': 'code3', 'name': 'name3', 'data': 4}]
     worker = Worker(2)
-    worker._companies_list = test_companies_list
     correct_result = [{'code': 'code2', 'name': 'name2', 'data': 1},
                       {'code': 'code1', 'name': 'name1', 'data': 2}]
 
-    result = worker._sort_elements('data')
+    result = worker._sort_elements(test_companies_list, 'data')
 
     assert result == correct_result
 
@@ -64,11 +53,10 @@ def test_sort_elements_with_coef_and_reversed(mock_scalper):
                            {'code': 'code2', 'name': 'name2', 'data': 1},
                            {'code': 'code3', 'name': 'name3', 'data': 4}]
     worker = Worker(2)
-    worker._companies_list = test_companies_list
     correct_result = [{'code': 'code3', 'name': 'name3', 'data': 8},
                       {'code': 'code1', 'name': 'name1', 'data': 4}]
 
-    result = worker._sort_elements('data', 2, True)
+    result = worker._sort_elements(test_companies_list, 'data', 2, True)
 
     assert result == correct_result
 
@@ -86,7 +74,7 @@ async def test_get_companies_info(mock_scalper):
     worker = Worker(2)
     worker._scalper = fake_scalper
 
-    _ = await worker._get_companies_info()
+    usd_course, companies_info = await worker._get_info()
 
-    assert worker._usd_course == test_usd_course
-    assert worker._companies_list == test_companies_list
+    assert usd_course == test_usd_course
+    assert companies_info == test_companies_list
