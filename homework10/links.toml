@@ -1,0 +1,15 @@
+FIRST_PAGE_LINK = 'https://markets.businessinsider.com/index/components/s&p_500'
+SITE_LINK = 'https://markets.businessinsider.com'
+BANK_LINK = 'http://www.cbr.ru/scripts/XML_daily.asp?date_req={}'
+DATA_LINK = 'https://markets.businessinsider.com/Ajax/Chart_GetChartData?instrumentType=Share&tkData={}&from={}&to={}'
+
+# FOR HTML PARSING
+COMPANIES_TABLE = 'table__tbody'
+COMPANY = "^/stocks.*stock$"
+CURRENT_PRICE = '<span class="price-section__current-value">152.24</span>'
+NAME = '<span class="price-section__label">3M Co.</span>'
+RESPONSE = '<div class="responsivePosition" id="DetailChart">'
+CODE = '<span class="price-section__category">Stock <span>, MMM</span></span>'
+PE = '<div class="snapshot__header">P/E Ratio</div>'
+PE_PARENT = '<div class="snapshot__data-item">19.91<div class="snapshot__header">P/E Ratio</div></div>'
+DB_EXAMPLE = '{"Close":1773.96,"Open":1744.91,"High":1787,"Low":1742.31,"Volume":511340,"Estimate":0,"Date":"2020-12-28 00:00"}'
