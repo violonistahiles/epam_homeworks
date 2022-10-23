@@ -1,0 +1,6 @@
+GETITEM = 'SELECT * from {} where name=:name'
+LEN = 'SELECT count(*) from {}'
+COLUMNS = 'SELECT * from {}'
+ITER_START = 'SELECT * from {} order by name limit 1'
+ITER_NEXT = 'SELECT * from {} where name > :name order by name limit 1'
+TABLES = "SELECT name FROM sqlite_master WHERE type='table'"
